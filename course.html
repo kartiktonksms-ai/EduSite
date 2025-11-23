@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Course Player</title>
+  <style>
+    body{font-family:Inter,system-ui,Arial;margin:0;background:#f7fbff;color:#0f172a}
+    .wrap{max-width:900px;margin:28px auto;padding:18px}
+    .card{background:#fff;padding:16px;border-radius:10px;box-shadow:0 8px 24px rgba(2,6,23,0.06)}
+    h1{margin:0 0 8px}
+    .muted{color:#6b7280}
+    .lessons{margin-top:12px}
+    .lesson{padding:10px;border-radius:8px;border:1px solid #eef2f7;margin-bottom:8px}
+    a.back{color:#0b6efd;text-decoration:none}
+    .video{width:100%;height:420px;background:#000;border-radius:8px;display:grid;place-items:center;color:#fff}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div><a class="back" href="index.html">← Back</a></div>
+    <div id="content" class="card">
+      <h1 id="course-title">Course</h1>
+      <div id="course-sub" class="muted">Subjects</div>
+      <div style="margin-top:12px" id="video-area" class="video">Sample video will appear here</div>
+      <div class="lessons" id="lessons-list"></div>
+    </div>
+  </div>
+
+  <script>
+    // Auth guard
+    (function(){
+      const logged = JSON.parse(localStorage.getItem('loggedInUser') || sessionStorage.getItem('loggedInUser') || 'null');
+      if(!logged){ window.location.href = 'login.html'; }
+    })();
+
+    const params = new URLSearchParams(location.search);
+    const cls = params.get('class') || '3';
+
+    // minimal syllabus copy (could be shared)
+    const syllabus = {
+      '3': { title:'Class 3 — Full Course', subjects:'Maths • EVS • English', lessons:['Numbers basics','Shapes & measurement','Plants & animals','Reading practice'] },
+      '4': { title:'Class 4 — Full Course', subjects:'Maths • EVS • English', lessons:['Multiplication','Fractions intro','Local geography','Comprehension'] },
+      '5': { title:'Class 5 — Full Course', subjects:'Maths • EVS • English', lessons:['Advanced fractions','Decimals & percent','Plant physiology','Writing skills'] }
+    };
+
+    const info = syllabus[cls] || {title:`Class ${cls}`, subjects:'Subjects', lessons:['Lesson 1','Lesson 2']};
+    document.getElementById('course-title').textContent = info.title;
+    document.getElementById('course-sub').textContent = 'Subjects: ' + info.subjects;
+
+    const videoArea = document.getElementById('video-area');
+    // if sample_preview.mp4 exists, use it, otherwise show placeholder
+    const vid = document.createElement('video');
+    vid.controls = true; vid.style.width='100%'; vid.style.height='100%';
+    vid.src = 'sample_preview.mp4';
+    vid.addEventListener('error', ()=>{ videoArea.textContent = 'Video not available. Use Open preview on homepage.'; });
+    videoArea.innerHTML=''; videoArea.appendChild(vid);
+
+    const lessonsList = document.getElementById('lessons-list');
+    info.lessons.forEach((ls, i)=>{
+      const d = document.createElement('div'); d.className='lesson'; d.textContent = `${i+1}. ${ls}`; lessonsList.appendChild(d);
+    });
+  </script>
+</body>
+</html>

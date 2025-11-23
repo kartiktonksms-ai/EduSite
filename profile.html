@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Profile</title>
+  <style>
+    body{font-family:Arial,system-ui;display:flex;align-items:center;justify-content:center;height:100vh;background:#f7fbff;margin:0}
+    .card{background:white;padding:22px;border-radius:12px;box-shadow:0 8px 30px rgba(2,6,23,0.08);width:340px}
+    h2{margin:0 0 10px}
+    .muted{color:#6b7280}
+    .row{display:flex;justify-content:space-between;padding:10px 0}
+    button{background:#0b6efd;color:white;padding:10px 12px;border:0;border-radius:8px;cursor:pointer}
+    a{color:#0b6efd;text-decoration:none}
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h2>Your Profile</h2>
+    <div id="profile-area" class="muted">Loading...</div>
+
+    <div style="margin-top:14px;display:flex;gap:8px">
+      <button id="logout">Logout</button>
+      <a id="back-link" href="index.html" style="align-self:center">Back to Home</a>
+    </div>
+  </div>
+
+  <script>
+    const user = JSON.parse(localStorage.getItem('loggedInUser') || sessionStorage.getItem('loggedInUser') || 'null');
+    const area = document.getElementById('profile-area');
+    if(!user){
+      // not logged in -> require login
+      window.location.href = 'login.html';
+    } else {
+      area.innerHTML = `
+        <div class="row"><strong>Name</strong><span>${escapeHtml(user.name)}</span></div>
+        <div class="row"><strong>Email</strong><span>${escapeHtml(user.email)}</span></div>
+      `;
+    }
+
+    document.getElementById('logout').addEventListener('click', ()=>{
+      localStorage.removeItem('loggedInUser');
+      sessionStorage.removeItem('loggedInUser');
+      window.location.href = 'login.html';
+    });
+
+    function escapeHtml(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#039;');}
+  </script>
+</body>
+</html>

@@ -1,0 +1,550 @@
+<!doctype html>
+<html lang="en" class="h-full">
+ <head>
+  <meta charset="UTF-8">
+  <title>Login &amp; Signup</title><!-- Tailwind via CDN -->
+  <script src="https://cdn.tailwindcss.com"></script><!-- Canva SDKs -->
+  <script src="/_sdk/element_sdk.js"></script>
+  <style>
+    body {
+      box-sizing: border-box;
+    }
+
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+      }
+      to {
+        opacity: 1;
+      }
+    }
+
+    @keyframes scaleIn {
+      from {
+        opacity: 0;
+        transform: scale(0.95);
+      }
+      to {
+        opacity: 1;
+        transform: scale(1);
+      }
+    }
+
+    @keyframes shimmer {
+      0% {
+        background-position: -200% center;
+      }
+      100% {
+        background-position: 200% center;
+      }
+    }
+
+    @keyframes slideIn {
+      from {
+        opacity: 0;
+        transform: translateX(-20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateX(0);
+      }
+    }
+
+    .auth-card {
+      animation: scaleIn 0.5s ease-out;
+    }
+
+    .auth-heading {
+      animation: fadeInUp 0.6s ease-out 0.1s backwards;
+    }
+
+    .auth-subtitle {
+      animation: fadeInUp 0.6s ease-out 0.2s backwards;
+    }
+
+    .auth-input, .auth-label {
+      animation: fadeIn 0.5s ease-out backwards;
+    }
+
+    .auth-input {
+      transition: all 0.3s ease;
+    }
+
+    .auth-input:focus {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(14, 165, 233, 0.15);
+    }
+
+    .auth-button {
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .auth-button::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+      background-size: 200% 100%;
+      animation: shimmer 2s infinite;
+    }
+
+    .auth-button:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 20px rgba(14, 165, 233, 0.3);
+    }
+
+    .auth-button:active {
+      transform: translateY(-1px);
+    }
+
+    .tab-button {
+      transition: all 0.3s ease;
+      position: relative;
+    }
+
+    .tab-button::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 3px;
+      background: currentColor;
+      transform: scaleX(0);
+      transition: transform 0.3s ease;
+    }
+
+    .tab-button.active::after {
+      transform: scaleX(1);
+    }
+
+    .page-hidden {
+      display: none;
+    }
+
+    .page-visible {
+      animation: slideIn 0.4s ease-out;
+    }
+  </style>
+  <script>
+    if (window.tailwind) {
+      window.tailwind.config = {
+        theme: {
+          extend: {
+            fontFamily: {
+              sans: ['system-ui', 'sans-serif']
+            }
+          }
+        }
+      };
+    }
+
+    const defaultConfig = {
+      background_color: "#f0f9ff",
+      surface_color: "#ffffff",
+      text_color: "#0f172a",
+      primary_action_color: "#0ea5e9",
+      secondary_action_color: "#64748b",
+
+      font_family: "system-ui",
+      font_size: 16,
+
+      signup_title: "Create your account",
+      signup_subtitle: "Join us and start your journey today.",
+      signup_button_text: "Sign up",
+      login_title: "Welcome back",
+      login_subtitle: "Sign in to your account to continue.",
+      login_button_text: "Log in"
+    };
+
+    (async function initElementSdk() {
+      if (!window.elementSdk) return;
+
+      await window.elementSdk.init({
+        defaultConfig,
+        onConfigChange: async (config) => {
+          const current = Object.assign({}, defaultConfig, config);
+
+          const body = document.body;
+          const signupCard = document.getElementById("signup-card");
+          const loginCard = document.getElementById("login-card");
+          
+          const signupTitle = document.getElementById("signup-title");
+          const signupSubtitle = document.getElementById("signup-subtitle");
+          const signupBtn = document.getElementById("signup-submit");
+          
+          const loginTitle = document.getElementById("login-title");
+          const loginSubtitle = document.getElementById("login-subtitle");
+          const loginBtn = document.getElementById("login-submit");
+          
+          const inputs = document.querySelectorAll(".auth-input");
+          const labels = document.querySelectorAll(".auth-label");
+          const smallText = document.querySelectorAll(".auth-small-text");
+          const tabs = document.querySelectorAll(".tab-button");
+
+          if (!body) return;
+
+          const baseFontName = current.font_family || defaultConfig.font_family;
+          const baseSize = current.font_size || defaultConfig.font_size;
+          const fontStack = baseFontName + ', system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif';
+
+          body.style.backgroundColor = current.background_color;
+          body.style.fontFamily = fontStack;
+
+          [signupCard, loginCard].forEach(card => {
+            if (card) {
+              card.style.backgroundColor = current.surface_color;
+              card.style.color = current.text_color;
+            }
+          });
+
+          if (signupTitle) {
+            signupTitle.textContent = current.signup_title || defaultConfig.signup_title;
+            signupTitle.style.color = current.text_color;
+            signupTitle.style.fontFamily = fontStack;
+            signupTitle.style.fontSize = (baseSize * 1.75) + "px";
+          }
+
+          if (signupSubtitle) {
+            signupSubtitle.textContent = current.signup_subtitle || defaultConfig.signup_subtitle;
+            signupSubtitle.style.color = current.text_color;
+            signupSubtitle.style.fontFamily = fontStack;
+            signupSubtitle.style.fontSize = (baseSize * 0.95) + "px";
+          }
+
+          if (loginTitle) {
+            loginTitle.textContent = current.login_title || defaultConfig.login_title;
+            loginTitle.style.color = current.text_color;
+            loginTitle.style.fontFamily = fontStack;
+            loginTitle.style.fontSize = (baseSize * 1.75) + "px";
+          }
+
+          if (loginSubtitle) {
+            loginSubtitle.textContent = current.login_subtitle || defaultConfig.login_subtitle;
+            loginSubtitle.style.color = current.text_color;
+            loginSubtitle.style.fontFamily = fontStack;
+            loginSubtitle.style.fontSize = (baseSize * 0.95) + "px";
+          }
+
+          labels.forEach((el) => {
+            el.style.color = current.text_color;
+            el.style.fontFamily = fontStack;
+            el.style.fontSize = (baseSize * 0.85) + "px";
+          });
+
+          inputs.forEach((el) => {
+            el.style.fontFamily = fontStack;
+            el.style.fontSize = (baseSize * 0.95) + "px";
+            el.style.color = current.text_color;
+            el.style.backgroundColor = "#f8fafc";
+            el.style.borderColor = "#cbd5e1";
+          });
+
+          smallText.forEach((el) => {
+            el.style.color = current.text_color;
+            el.style.fontFamily = fontStack;
+            el.style.fontSize = (baseSize * 0.8) + "px";
+          });
+
+          if (signupBtn) {
+            signupBtn.textContent = current.signup_button_text || defaultConfig.signup_button_text;
+            signupBtn.style.backgroundColor = current.primary_action_color;
+            signupBtn.style.color = "#ffffff";
+            signupBtn.style.fontFamily = fontStack;
+            signupBtn.style.fontSize = (baseSize * 0.95) + "px";
+          }
+
+          if (loginBtn) {
+            loginBtn.textContent = current.login_button_text || defaultConfig.login_button_text;
+            loginBtn.style.backgroundColor = current.primary_action_color;
+            loginBtn.style.color = "#ffffff";
+            loginBtn.style.fontFamily = fontStack;
+            loginBtn.style.fontSize = (baseSize * 0.95) + "px";
+          }
+
+          tabs.forEach((tab) => {
+            tab.style.fontFamily = fontStack;
+            tab.style.fontSize = (baseSize * 0.95) + "px";
+            if (tab.classList.contains('active')) {
+              tab.style.color = current.primary_action_color;
+            } else {
+              tab.style.color = current.secondary_action_color;
+            }
+          });
+        },
+        mapToCapabilities: (config) => {
+          const cfg = Object.assign({}, defaultConfig, config);
+
+          return {
+            recolorables: [
+              {
+                get: () => cfg.background_color,
+                set: (value) => {
+                  window.elementSdk.setConfig({ background_color: value });
+                }
+              },
+              {
+                get: () => cfg.surface_color,
+                set: (value) => {
+                  window.elementSdk.setConfig({ surface_color: value });
+                }
+              },
+              {
+                get: () => cfg.text_color,
+                set: (value) => {
+                  window.elementSdk.setConfig({ text_color: value });
+                }
+              },
+              {
+                get: () => cfg.primary_action_color,
+                set: (value) => {
+                  window.elementSdk.setConfig({ primary_action_color: value });
+                }
+              },
+              {
+                get: () => cfg.secondary_action_color,
+                set: (value) => {
+                  window.elementSdk.setConfig({ secondary_action_color: value });
+                }
+              }
+            ],
+            borderables: [],
+            fontEditable: {
+              get: () => cfg.font_family,
+              set: (value) => {
+                window.elementSdk.setConfig({ font_family: value });
+              }
+            },
+            fontSizeable: {
+              get: () => cfg.font_size,
+              set: (value) => {
+                const num = Number(value) || defaultConfig.font_size;
+                window.elementSdk.setConfig({ font_size: num });
+              }
+            }
+          };
+        },
+        mapToEditPanelValues: (config) => {
+          const cfg = Object.assign({}, defaultConfig, config);
+          return new Map([
+            ["signup_title", cfg.signup_title],
+            ["signup_subtitle", cfg.signup_subtitle],
+            ["signup_button_text", cfg.signup_button_text],
+            ["login_title", cfg.login_title],
+            ["login_subtitle", cfg.login_subtitle],
+            ["login_button_text", cfg.login_button_text]
+          ]);
+        }
+      });
+    })();
+  </script>
+  <style>@view-transition { navigation: auto; }</style>
+  <script src="/_sdk/data_sdk.js" type="text/javascript"></script>
+ </head>
+ <body class="h-full m-0 flex items-center justify-center px-4">
+  <div class="w-full h-full flex items-center justify-center">
+   <main class="w-full max-w-md"><!-- Tab Navigation -->
+    <nav class="flex gap-4 mb-6 justify-center" role="tablist"><button id="tab-login" class="tab-button active px-6 py-2 font-medium" role="tab" aria-selected="true" aria-controls="login-page"> Log in </button> <button id="tab-signup" class="tab-button px-6 py-2 font-medium" role="tab" aria-selected="false" aria-controls="signup-page"> Sign up </button>
+    </nav><!-- Login Page -->
+    <section id="login-page" class="page-visible" role="tabpanel" aria-labelledby="tab-login">
+     <div id="login-card" class="auth-card rounded-2xl shadow-xl px-8 py-8 sm:px-10 sm:py-10 border border-slate-200">
+      <header class="mb-8">
+       <h1 id="login-title" class="text-3xl font-semibold tracking-tight mb-2 auth-heading">Welcome back</h1>
+       <p id="login-subtitle" class="text-sm auth-subtitle auth-small-text">Sign in to your account to continue.</p>
+      </header>
+      <form id="login-form" class="space-y-5" aria-describedby="login-success login-error">
+       <div class="flex flex-col"><label for="login-email" class="mb-1.5 text-sm font-medium auth-label"> Email address </label> <input id="login-email" name="email" type="email" required class="auth-input rounded-lg border px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-sky-400 focus:border-sky-400">
+       </div>
+       <div class="flex flex-col"><label for="login-password" class="mb-1.5 text-sm font-medium auth-label"> Password </label> <input id="login-password" name="password" type="password" required class="auth-input rounded-lg border px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-sky-400 focus:border-sky-400">
+       </div>
+       <div class="flex items-center justify-between">
+        <div class="flex items-center gap-2"><input id="remember" name="remember" type="checkbox" class="h-4 w-4 rounded border-slate-600 text-sky-400 focus:ring-sky-400"> <label for="remember" class="text-xs auth-small-text"> Remember me </label>
+        </div><a href="#" class="text-xs text-sky-500 hover:text-sky-600 auth-small-text"> Forgot password? </a>
+       </div><button id="login-submit" type="submit" class="auth-button mt-2 inline-flex w-full items-center justify-center rounded-lg px-4 py-2.5 text-sm font-medium shadow-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-sky-400"> Log in </button>
+       <p id="login-success" class="mt-3 text-xs text-emerald-500 hidden auth-small-text" role="status">This is a demo login form – no actual authentication occurs.</p>
+       <p id="login-error" class="mt-3 text-xs text-rose-500 hidden auth-small-text" role="status"></p>
+      </form>
+     </div>
+    </section><!-- Signup Page -->
+    <section id="signup-page" class="page-hidden" role="tabpanel" aria-labelledby="tab-signup">
+     <div id="signup-card" class="auth-card rounded-2xl shadow-xl px-8 py-8 sm:px-10 sm:py-10 border border-slate-200">
+      <header class="mb-8">
+       <h1 id="signup-title" class="text-3xl font-semibold tracking-tight mb-2 auth-heading">Create your account</h1>
+       <p id="signup-subtitle" class="text-sm auth-subtitle auth-small-text">Join us and start your journey today.</p>
+      </header>
+      <form id="signup-form" class="space-y-5" aria-describedby="signup-success signup-error">
+       <div class="flex flex-col"><label for="full_name" class="mb-1.5 text-sm font-medium auth-label"> Full name </label> <input id="full_name" name="full_name" type="text" required class="auth-input rounded-lg border px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-sky-400 focus:border-sky-400">
+       </div>
+       <div class="flex flex-col"><label for="signup-email" class="mb-1.5 text-sm font-medium auth-label"> Email address </label> <input id="signup-email" name="email" type="email" required class="auth-input rounded-lg border px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-sky-400 focus:border-sky-400">
+       </div>
+       <div class="flex flex-col"><label for="signup-password" class="mb-1.5 text-sm font-medium auth-label"> Password </label> <input id="signup-password" name="password" type="password" minlength="6" required class="auth-input rounded-lg border px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-sky-400 focus:border-sky-400">
+        <p class="mt-1 text-xs text-slate-400 auth-small-text">At least 6 characters for this demo.</p>
+       </div>
+       <div class="flex items-start gap-2"><input id="terms" name="terms" type="checkbox" required class="mt-1 h-4 w-4 rounded border-slate-600 text-sky-400 focus:ring-sky-400"> <label for="terms" class="text-xs auth-small-text"> I agree to the sample Terms of Service and Privacy Policy. </label>
+       </div><button id="signup-submit" type="submit" class="auth-button mt-2 inline-flex w-full items-center justify-center rounded-lg px-4 py-2.5 text-sm font-medium shadow-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-sky-400"> Sign up </button>
+       <p id="signup-success" class="mt-3 text-xs text-emerald-500 hidden auth-small-text" role="status">This is a demo signup form – your data is not actually sent anywhere.</p>
+       <p id="signup-error" class="mt-3 text-xs text-rose-500 hidden auth-small-text" role="status"></p>
+      </form>
+     </div>
+    </section>
+   </main>
+  </div>
+  <script>
+    // Tab switching
+    const tabLogin = document.getElementById("tab-login");
+    const tabSignup = document.getElementById("tab-signup");
+    const loginPage = document.getElementById("login-page");
+    const signupPage = document.getElementById("signup-page");
+
+    function switchToLogin() {
+      tabLogin.classList.add("active");
+      tabSignup.classList.remove("active");
+      tabLogin.setAttribute("aria-selected", "true");
+      tabSignup.setAttribute("aria-selected", "false");
+      
+      loginPage.classList.remove("page-hidden");
+      loginPage.classList.add("page-visible");
+      signupPage.classList.add("page-hidden");
+      signupPage.classList.remove("page-visible");
+    }
+
+    function switchToSignup() {
+      tabSignup.classList.add("active");
+      tabLogin.classList.remove("active");
+      tabSignup.setAttribute("aria-selected", "true");
+      tabLogin.setAttribute("aria-selected", "false");
+      
+      signupPage.classList.remove("page-hidden");
+      signupPage.classList.add("page-visible");
+      loginPage.classList.add("page-hidden");
+      loginPage.classList.remove("page-visible");
+    }
+
+    tabLogin.addEventListener("click", switchToLogin);
+    tabSignup.addEventListener("click", switchToSignup);
+
+    // --- Real Login / Signup handlers (persistent demo-free) ---
+    const loginForm = document.getElementById("login-form");
+    const loginSuccess = document.getElementById("login-success");
+    const loginError = document.getElementById("login-error");
+    const loginBtn = document.getElementById("login-submit");
+
+    const signupForm = document.getElementById("signup-form");
+    const signupSuccess = document.getElementById("signup-success");
+    const signupError = document.getElementById("signup-error");
+    const signupBtn = document.getElementById("signup-submit");
+
+    // helpers for users storage
+    function loadUsers(){
+      try{return JSON.parse(localStorage.getItem('users')||'[]');}catch(e){return []}
+    }
+    function saveUsers(list){
+      localStorage.setItem('users', JSON.stringify(list));
+    }
+
+    function setLoggedIn(userObj, remember){
+      const data = {name:userObj.name, email:userObj.email};
+      if(remember){
+        localStorage.setItem('loggedInUser', JSON.stringify(data));
+      } else {
+        sessionStorage.setItem('loggedInUser', JSON.stringify(data));
+      }
+    }
+
+    function getLoggedIn(){
+      return JSON.parse(localStorage.getItem('loggedInUser') || sessionStorage.getItem('loggedInUser') || 'null');
+    }
+
+    // LOGIN: validate against saved users
+    if(loginForm){
+      loginForm.addEventListener('submit', function(e){
+        e.preventDefault();
+        loginError.classList.add('hidden');
+        loginSuccess.classList.add('hidden');
+
+        const email = document.getElementById('login-email').value.trim().toLowerCase();
+        const password = document.getElementById('login-password').value;
+        const remember = document.getElementById('remember').checked;
+
+        if(!email || !password){
+          loginError.textContent = 'Please enter email and password.'; loginError.classList.remove('hidden'); return;
+        }
+
+        const users = loadUsers();
+        const found = users.find(u=>u.email.toLowerCase()===email && u.password===password);
+        if(!found){
+          loginError.textContent = 'Invalid email or password.'; loginError.classList.remove('hidden'); return;
+        }
+
+        // success
+        setLoggedIn(found, remember);
+        loginSuccess.classList.remove('hidden');
+        // redirect to main page
+        setTimeout(()=>{ window.location.href = 'index.html'; }, 500);
+      });
+    }
+
+    // SIGNUP: create user and log in
+    if(signupForm){
+      signupForm.addEventListener('submit', function(e){
+        e.preventDefault();
+        signupError.classList.add('hidden');
+        signupSuccess.classList.add('hidden');
+
+        const name = document.getElementById('full_name').value.trim();
+        const email = document.getElementById('signup-email').value.trim().toLowerCase();
+        const password = document.getElementById('signup-password').value;
+        const terms = document.getElementById('terms').checked;
+
+        if(!name || !email || !password || !terms){
+          signupError.textContent = 'Please fill all fields and accept the terms.'; signupError.classList.remove('hidden'); return;
+        }
+        if(password.length < 6){
+          signupError.textContent = 'Password must be at least 6 characters.'; signupError.classList.remove('hidden'); return;
+        }
+
+        const users = loadUsers();
+        if(users.find(u=>u.email.toLowerCase()===email)){
+          signupError.textContent = 'An account with this email already exists.'; signupError.classList.remove('hidden'); return;
+        }
+
+        const user = {id: 'u'+Date.now(), name, email, password};
+        users.push(user);
+        saveUsers(users);
+
+        // auto-login newly created user (persisted in localStorage by default)
+        localStorage.setItem('loggedInUser', JSON.stringify({name: user.name, email: user.email}));
+        signupSuccess.classList.remove('hidden');
+        setTimeout(()=>{ window.location.href = 'index.html'; }, 500);
+      });
+    }
+
+    // If the page was opened with #signup, switch to the signup tab automatically
+    (function(){
+      try{
+        if(location.hash && location.hash.toLowerCase()==='#signup'){
+          switchToSignup();
+          // focus first input for convenience
+          const first = document.getElementById('full_name'); if(first) first.focus();
+        }
+      }catch(e){}
+    })();
+  </script>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9a26341d949e4212',t:'MTc2Mzc5MTE5Ni4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
