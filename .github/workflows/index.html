@@ -1,0 +1,1095 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>EduSite — Learn with Clarity</title>
+  <!-- Internal CSS only (single-file) -->
+  <style>
+    :root{
+      --accent:#0b6efd; /* bright blue */
+      --muted:#6b7280;
+      --bg: #f7fbff;
+      --card:#ffffff;
+      --glass: rgba(255,255,255,0.75);
+      --radius:14px;
+      --max-width:1100px;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
+    }
+    *{box-sizing:border-box}
+    body{margin:0;background:linear-gradient(180deg,#f0f7ff 0%,var(--bg) 60%);color:#0f172a;line-height:1.45}
+    .container{max-width:var(--max-width);margin:0 auto;padding:20px}
+
+    /* Header */
+    header{display:flex;align-items:center;justify-content:space-between;padding:18px 0}
+    .brand{display:flex;align-items:center;gap:12px}
+    .logo{width:48px;height:48px;border-radius:10px;background:linear-gradient(135deg,var(--accent),#7c3aed);display:grid;place-items:center;color:white;font-weight:700}
+    nav{display:flex;gap:18px;align-items:center}
+    nav a{color:var(--muted);text-decoration:none;font-weight:600}
+    .cta{background:var(--accent);color:white;padding:10px 14px;border-radius:10px;text-decoration:none;font-weight:700}
+
+    /* Hero */
+    .hero{display:grid;grid-template-columns:1fr 420px;gap:28px;align-items:center;margin:28px 0}
+    .hero h1{font-size:28px;margin:0 0 12px}
+    .sub{color:var(--muted);margin-bottom:18px}
+    .hero .actions{display:flex;gap:12px}
+    .btn{padding:12px 16px;border-radius:10px;text-decoration:none;font-weight:700}
+    .btn-ghost{background:transparent;border:2px solid rgba(15,23,42,0.06)}
+    .card{background:linear-gradient(180deg,var(--card),#fbfdff);padding:18px;border-radius:var(--radius);box-shadow:0 6px 20px rgba(15,23,42,0.06)}
+
+    /* Courses grid */
+    .courses{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin:22px 0}
+    .course{padding:14px;border-radius:12px;background:linear-gradient(180deg,#fff,#fbfdff);border:1px solid rgba(15,23,42,0.04)}
+    .course h3{margin:8px 0 6px;font-size:16px}
+    .meta{color:var(--muted);font-size:13px}
+
+    /* Features */
+    .features{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin:22px 0}
+    .feature{padding:18px;border-radius:12px;background:var(--glass);backdrop-filter: blur(6px);}
+    .feature h4{margin:8px 0}
+
+    /* Testimonials */
+    .testi{display:flex;gap:12px;overflow:auto;padding-bottom:8px}
+    .testi .item{min-width:220px;padding:14px;background:white;border-radius:12px;border:1px solid rgba(15,23,42,0.04)}
+
+    /* FAQ */
+    .faq .q{cursor:pointer;padding:12px;border-radius:10px;border:1px solid rgba(15,23,42,0.04);background:transparent;margin-bottom:8px}
+    .faq .a{padding:10px 12px;color:var(--muted);display:none}
+
+    footer{margin-top:30px;padding:18px 0;color:var(--muted)}
+
+    /* Responsive */
+    @media (max-width:980px){
+      .hero{grid-template-columns:1fr;}
+      .courses{grid-template-columns:repeat(2,1fr)}
+      .features{grid-template-columns:repeat(2,1fr)}
+    }
+    @media (max-width:640px){
+      nav{display:none}
+      .hero{gap:12px}
+      .logo{width:44px;height:44px}
+      .courses{grid-template-columns:1fr}
+      .features{grid-template-columns:1fr}
+    }
+
+    /* small utilities */
+    .muted{color:var(--muted)}
+    .pill{display:inline-block;padding:6px 8px;border-radius:999px;background:rgba(11,110,253,0.08);color:var(--accent);font-weight:700;font-size:12px}
+
+  </style>
+  <!-- jsPDF for PDF export -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <!-- Razorpay Checkout (optional) -->
+  <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div id="menu-panel" style="display:none;position:absolute;top:70px;right:20px;background:white;padding:14px;border-radius:12px;box-shadow:0 6px 20px rgba(0,0,0,0.1);z-index:10">
+        <a href="eduai.html" style="display:block;margin-bottom:8px;color:var(--accent);font-weight:700;text-decoration:none">EduAI</a>
+      </div>
+      <div class="brand">
+        <div class="logo">ES</div>
+        <div>
+          <div style="font-weight:800">
+            <a href="index.html" style="text-decoration:none;color:inherit">EduSite</a>
+          </div>
+          <div style="font-size:13px;color:var(--muted)">Learn smarter, score higher</div>
+        </div>
+      </div>
+      <nav>
+        <a href="#courses">Courses</a>
+        <a href="#plans">Plans</a>
+        <a href="#features">Why Us</a>
+        <a href="#faq">FAQ</a>
+        <a href="admin.html" style="color:var(--accent);font-weight:700">Admin</a>
+        <a id="profile-link" href="profile.html" style="display:none">Profile</a>
+        <a id="logout-link" href="#" style="display:none">Logout</a>
+        <a id="login-link" href="login.html">Login</a>
+        <a id="signup-link" href="login.html#signup" style="margin-left:6px">Sign Up</a>
+        <div id="menu-btn" style="padding:8px 12px;border-radius:8px;border:1px solid rgba(15,23,42,0.1);cursor:pointer;font-weight:700">Menu</div>
+      </nav>
+    </header>
+
+    <section class="hero">
+      <div>
+        <div class="pill">Free Trial • Live Classes</div>
+        <h1>Top-quality video lessons, live doubt sessions & test series for competitive exams</h1>
+        <p class="sub">Bite-sized lessons, clear teachers, and a study plan tailored for you. Built with students in mind — fast-loading and mobile-friendly.</p>
+        <div class="actions">
+          <a class="btn" href="#courses" style="background:var(--accent);color:white">Browse Courses</a>
+          <a class="btn btn-ghost" href="#features">How it works</a>
+        </div>
+        <div style="margin-top:18px;font-size:14px;color:var(--muted)"></div>
+      </div>
+
+      <aside class="card">
+        <div style="font-weight:800;margin-bottom:10px">Sample Course Preview</div>
+        <div id="video-preview" style="height:170px;border-radius:10px;display:grid;place-items:center;color:var(--accent);font-weight:700;overflow:hidden;background:linear-gradient(180deg,#eefcff,#ffffff);cursor:pointer">
+          <div id="video-thumb" style="text-align:center">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M8 5v14l11-7L8 5z" fill="currentColor"/></svg>
+            <div style="font-weight:700;margin-top:8px">Play sample course preview</div>
+          </div>
+        </div>
+        <div style="display:flex;gap:8px;margin-top:12px">
+          <a class="btn" style="flex:1" href="#">Enroll</a>
+          <a id="open-preview-link" class="btn btn-ghost" style="flex:1" href="https://www.bing.com/videos/riverview/relatedvideo?&q=i+want+a+sample+course+preview+video+of+ncret&&mid=ABBEA55BB12203FEA326ABBEA55BB12203FEA326&&FORM=VRDGAR" target="_blank" rel="noopener">Open preview</a>
+        </div>
+      </aside>
+    </section>
+
+    <!-- Plans -->
+    <section id="plans" style="margin-top:26px">
+      <h2 style="margin-bottom:8px">Get Plans</h2>
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:12px">
+        <div class="card plan-card" data-plan="one-day" style="padding:16px;text-align:center">
+          <div style="font-weight:800">One-day Plan</div>
+          <div class="muted" style="margin:6px 0">Quick crash course — one-day access</div>
+          <div style="font-size:20px;font-weight:900;margin:8px">₹49</div>
+          <ul style="text-align:left;padding-left:18px;margin:8px 0;color:var(--muted)">
+            <li>Access to 1 full day of lessons</li>
+            <li>1 live doubt session</li>
+            <li>Downloadable notes (selected)</li>
+          </ul>
+          <button type="button" class="btn enroll-btn" data-plan="one-day" style="margin-top:8px">Enroll</button>
+        </div>
+
+        <div class="card plan-card" data-plan="weekly" style="padding:16px;text-align:center">
+          <div style="font-weight:800">Weekly Plan</div>
+          <div class="muted" style="margin:6px 0">Seven-day full access</div>
+          <div style="font-size:20px;font-weight:900;margin:8px">₹199</div>
+          <ul style="text-align:left;padding-left:18px;margin:8px 0;color:var(--muted)">
+            <li>Access to all lessons for 7 days</li>
+            <li>2 live doubt sessions</li>
+            <li>Weekly test & feedback</li>
+          </ul>
+          <button type="button" class="btn enroll-btn" data-plan="weekly" style="margin-top:8px">Enroll</button>
+        </div>
+
+        <div class="card plan-card" data-plan="monthly" style="padding:16px;text-align:center">
+          <div style="font-weight:800">Monthly Plan</div>
+          <div class="muted" style="margin:6px 0">30-day access with analytics</div>
+          <div style="font-size:20px;font-weight:900;margin:8px">₹599</div>
+          <ul style="text-align:left;padding-left:18px;margin:8px 0;color:var(--muted)">
+            <li>Full course access for 30 days</li>
+            <li>Weekly live doubt sessions</li>
+            <li>Performance reports</li>
+          </ul>
+          <button type="button" class="btn enroll-btn" data-plan="monthly" style="margin-top:8px">Enroll</button>
+        </div>
+
+        <div class="card plan-card" data-plan="yearly" style="padding:16px;text-align:center">
+          <div style="font-weight:800">Yearly Plan</div>
+          <div class="muted" style="margin:6px 0">Best value — 365 days</div>
+          <div style="font-size:20px;font-weight:900;margin:8px">₹4999</div>
+          <ul style="text-align:left;padding-left:18px;margin:8px 0;color:var(--muted)">
+            <li>All courses for one year</li>
+            <li>Priority doubt resolution</li>
+            <li>Monthly progress reviews</li>
+          </ul>
+          <button type="button" class="btn enroll-btn" data-plan="yearly" style="margin-top:8px">Enroll</button>
+        </div>
+      </div>
+      <div class="muted">Interested? Click Enroll to join a plan — you'll be asked to log in if not already.</div>
+    </section>
+
+
+    <section id="courses">
+      <h2 style="margin-bottom:8px">Classes 3 to 10 — Choose a class</h2>
+
+      <!-- Tabs for classes -->
+      <div id="class-tabs" style="display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap">
+        <button type="button" data-class="3" class="tab-btn" style="padding:8px 12px;border-radius:10px;border:1px solid rgba(15,23,42,0.06);background:linear-gradient(180deg,#fff,#fbfdff);font-weight:700">Class 3</button>
+        <button type="button" data-class="4" class="tab-btn" style="padding:8px 12px;border-radius:10px;border:1px solid rgba(15,23,42,0.06);background:transparent">Class 4</button>
+        <button type="button" data-class="5" class="tab-btn" style="padding:8px 12px;border-radius:10px;border:1px solid rgba(15,23,42,0.06);background:transparent">Class 5</button>
+        <button type="button" data-class="6" class="tab-btn" style="padding:8px 12px;border-radius:10px;border:1px solid rgba(15,23,42,0.06);background:transparent">Class 6</button>
+        <button type="button" data-class="7" class="tab-btn" style="padding:8px 12px;border-radius:10px;border:1px solid rgba(15,23,42,0.06);background:transparent">Class 7</button>
+        <button type="button" data-class="8" class="tab-btn" style="padding:8px 12px;border-radius:10px;border:1px solid rgba(15,23,42,0.06);background:transparent">Class 8</button>
+        <button type="button" data-class="9" class="tab-btn" style="padding:8px 12px;border-radius:10px;border:1px solid rgba(15,23,42,0.06);background:transparent">Class 9</button>
+        <button type="button" data-class="10" class="tab-btn" style="padding:8px 12px;border-radius:10px;border:1px solid rgba(15,23,42,0.06);background:transparent">Class 10</button>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 420px;gap:18px;align-items:start">
+        <!-- Left: class cards grid -->
+        <div id="class-cards" style="display:grid;grid-template-columns:repeat(2,1fr);gap:12px">
+
+          <!-- card template: will be used for each class -->
+          <div class="card class-card" data-class="3" style="display:flex;gap:12px;align-items:center;padding:12px;cursor:pointer">
+            <div style="width:72px;height:56px;border-radius:8px;display:grid;place-items:center;font-weight:900;background:linear-gradient(90deg,#fff,#eef6ff)">3</div>
+            <div>
+              <div style="font-weight:800">Class 3</div>
+              <div class="muted" style="font-size:13px">Maths • EVS • English</div>
+              <div style="margin-top:8px;display:flex;gap:8px">
+                <button type="button" class="small-syllabus" data-class="3" style="padding:8px 10px;border-radius:8px;border:1px solid rgba(15,23,42,0.06)">View syllabus</button>
+                <button type="button" class="small-start" data-class="3" style="padding:8px 10px;border-radius:8px;background:var(--accent);color:white;border:none">Start Learning</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="card class-card" data-class="4" style="display:flex;gap:12px;align-items:center;padding:12px;cursor:pointer">
+            <div style="width:72px;height:56px;border-radius:8px;display:grid;place-items:center;font-weight:900;background:linear-gradient(90deg,#fff,#eef6ff)">4</div>
+            <div>
+              <div style="font-weight:800">Class 4</div>
+              <div class="muted" style="font-size:13px">Maths • EVS • English</div>
+              <div style="margin-top:8px;display:flex;gap:8px">
+                <button type="button" class="small-syllabus" data-class="4" style="padding:8px 10px;border-radius:8px;border:1px solid rgba(15,23,42,0.06)">View syllabus</button>
+                <button type="button" class="small-start" data-class="4" style="padding:8px 10px;border-radius:8px;background:var(--accent);color:white;border:none">Start Learning</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="card class-card" data-class="5" style="display:flex;gap:12px;align-items:center;padding:12px;cursor:pointer">
+            <div style="width:72px;height:56px;border-radius:8px;display:grid;place-items:center;font-weight:900;background:linear-gradient(90deg,#fff,#eef6ff)">5</div>
+            <div>
+              <div style="font-weight:800">Class 5</div>
+              <div class="muted" style="font-size:13px">Maths • EVS • English</div>
+              <div style="margin-top:8px;display:flex;gap:8px">
+                <button type="button" class="small-syllabus" data-class="5" style="padding:8px 10px;border-radius:8px;border:1px solid rgba(15,23,42,0.06)">View syllabus</button>
+                <button type="button" class="small-start" data-class="5" style="padding:8px 10px;border-radius:8px;background:var(--accent);color:white;border:none">Start Learning</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="card class-card" data-class="6" style="display:flex;gap:12px;align-items:center;padding:12px;cursor:pointer">
+            <div style="width:72px;height:56px;border-radius:8px;display:grid;place-items:center;font-weight:900;background:linear-gradient(90deg,#fff,#eef6ff)">6</div>
+            <div>
+              <div style="font-weight:800">Class 6</div>
+              <div class="muted" style="font-size:13px">Maths • Science • SST • English</div>
+              <div style="margin-top:8px;display:flex;gap:8px">
+                <button type="button" class="small-syllabus" data-class="6" style="padding:8px 10px;border-radius:8px;border:1px solid rgba(15,23,42,0.06)">View syllabus</button>
+                <button type="button" class="small-start" data-class="6" style="padding:8px 10px;border-radius:8px;background:var(--accent);color:white;border:none">Start Learning</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="card class-card" data-class="7" style="display:flex;gap:12px;align-items:center;padding:12px;cursor:pointer">
+            <div style="width:72px;height:56px;border-radius:8px;display:grid;place-items:center;font-weight:900;background:linear-gradient(90deg,#fff,#eef6ff)">7</div>
+            <div>
+              <div style="font-weight:800">Class 7</div>
+              <div class="muted" style="font-size:13px">Maths • Science • SST • English</div>
+              <div style="margin-top:8px;display:flex;gap:8px">
+                <button type="button" class="small-syllabus" data-class="7" style="padding:8px 10px;border-radius:8px;border:1px solid rgba(15,23,42,0.06)">View syllabus</button>
+                <button type="button" class="small-start" data-class="7" style="padding:8px 10px;border-radius:8px;background:var(--accent);color:white;border:none">Start Learning</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="card class-card" data-class="8" style="display:flex;gap:12px;align-items:center;padding:12px;cursor:pointer">
+            <div style="width:72px;height:56px;border-radius:8px;display:grid;place-items:center;font-weight:900;background:linear-gradient(90deg,#fff,#eef6ff)">8</div>
+            <div>
+              <div style="font-weight:800">Class 8</div>
+              <div class="muted" style="font-size:13px">Maths • Science • SST • English</div>
+              <div style="margin-top:8px;display:flex;gap:8px">
+                <button type="button" class="small-syllabus" data-class="8" style="padding:8px 10px;border-radius:8px;border:1px solid rgba(15,23,42,0.06)">View syllabus</button>
+                <button type="button" class="small-start" data-class="8" style="padding:8px 10px;border-radius:8px;background:var(--accent);color:white;border:none">Start Learning</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="card class-card" data-class="9" style="display:flex;gap:12px;align-items:center;padding:12px;cursor:pointer">
+            <div style="width:72px;height:56px;border-radius:8px;display:grid;place-items:center;font-weight:900;background:linear-gradient(90deg,#fff,#eef6ff)">9</div>
+            <div>
+              <div style="font-weight:800">Class 9</div>
+              <div class="muted" style="font-size:13px">Maths • Science • SST • English</div>
+              <div style="margin-top:8px;display:flex;gap:8px">
+                <button type="button" class="small-syllabus" data-class="9" style="padding:8px 10px;border-radius:8px;border:1px solid rgba(15,23,42,0.06)">View syllabus</button>
+                <button type="button" class="small-start" data-class="9" style="padding:8px 10px;border-radius:8px;background:var(--accent);color:white;border:none">Start Learning</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="card class-card" data-class="10" style="display:flex;gap:12px;align-items:center;padding:12px;cursor:pointer">
+            <div style="width:72px;height:56px;border-radius:8px;display:grid;place-items:center;font-weight:900;background:linear-gradient(90deg,#fff,#eef6ff)">10</div>
+            <div>
+              <div style="font-weight:800">Class 10</div>
+              <div class="muted" style="font-size:13px">Maths • Science • SST • English</div>
+              <div style="margin-top:8px;display:flex;gap:8px">
+                <button type="button" class="small-syllabus" data-class="10" style="padding:8px 10px;border-radius:8px;border:1px solid rgba(15,23,42,0.06)">View syllabus</button>
+                <button type="button" class="small-start" data-class="10" style="padding:8px 10px;border-radius:8px;background:var(--accent);color:white;border:none">Start Learning</button>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Right: details panel -->
+        <aside id="class-detail" class="card" style="padding:16px;border-radius:12px">
+          <div id="detail-title" style="font-weight:800;font-size:18px">Class 3 — Overview</div>
+          <div id="detail-sub" class="muted" style="margin-top:6px">Subjects: Maths • EVS • English</div>
+
+          <h4 style="margin-top:12px">Syllabus snapshot</h4>
+          <ul id="syllabus-list" class="muted" style="padding-left:18px;margin-top:6px">
+            <li>Numbers and arithmetic</li>
+            <li>Plants and animals (EVS)</li>
+            <li>Basic grammar and reading (English)</li>
+          </ul>
+
+          <div style="display:flex;gap:8px;margin-top:12px">
+            <button id="start-btn" style="flex:1;padding:10px;border-radius:10px;background:var(--accent);color:white;border:none">Start Learning</button>
+            <button id="enroll-btn" style="flex:1;padding:10px;border-radius:10px;border:1px solid rgba(15,23,42,0.06)">Enroll</button>
+          </div>
+
+          <div style="margin-top:12px;color:var(--muted);font-size:13px">Preview lessons, downloadable notes, and weekly live doubt sessions.</div>
+        </aside>
+      </div>
+
+    </section>
+
+    <section id="features">
+      <h2 style="margin-bottom:8px">Why students choose us</h2>
+      <div class="features">
+        <div class="feature">
+          <h4>Clear tutors</h4>
+          <div class="muted">Experienced teachers who explain concepts simply and visually.</div>
+        </div>
+        <div class="feature">
+          <h4>Fast loading</h4>
+          <div class="muted">Optimized lessons for low-bandwidth and mobile viewing.</div>
+        </div>
+        <div class="feature">
+          <h4>Test + feedback</h4>
+          <div class="muted">Adaptive quizzes and performance analytics to track progress.</div>
+        </div>
+      </div>
+    </section>
+
+    
+
+    <section id="faq">
+      <h2 style="margin-bottom:8px">Frequently asked</h2>
+      <div class="faq">
+        <div class="q card" data-open="false">How do I join a live class?</div>
+        <div class="a card">Click Enroll on the course page and choose Live classes — we will email the link.</div>
+        <div class="q card" data-open="false">Do you provide study material?</div>
+        <div class="a card">Yes — downloadable notes and practice PDFs are provided with most courses.</div>
+        <div class="q card" data-open="false">What if I miss a class?</div>
+        <div class="a card">Recorded sessions are available in your dashboard for 30 days.</div>
+      </div>
+    </section>
+
+    
+    <section id="doubts" style="margin-top:18px">
+      <h2>Have a doubt? Ask here</h2>
+      <div class="card" style="padding:14px;">
+        <form id="doubt-form" style="display:grid;gap:10px" onsubmit="event.preventDefault();">
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <input id="doubt-name" type="text" placeholder="Your name" required style="flex:1;padding:10px;border-radius:8px;border:1px solid rgba(15,23,42,0.06)">
+            <select id="doubt-class" required style="width:140px;padding:10px;border-radius:8px;border:1px solid rgba(15,23,42,0.06)">
+              <option value="3">Class 3</option>
+              <option value="4">Class 4</option>
+              <option value="5">Class 5</option>
+              <option value="6">Class 6</option>
+              <option value="7">Class 7</option>
+              <option value="8">Class 8</option>
+              <option value="9">Class 9</option>
+              <option value="10">Class 10</option>
+            </select>
+            <select id="doubt-subject" required style="width:160px;padding:10px;border-radius:8px;border:1px solid rgba(15,23,42,0.06)">
+              <option>Mathematics</option>
+              <option>Science</option>
+              <option>SST</option>
+              <option>English</option>
+              
+            </select>
+          </div>
+
+          <input id="doubt-topic" type="text" placeholder="Topic (e.g. Fractions, Photosynthesis)" required style="padding:10px;border-radius:8px;border:1px solid rgba(15,23,42,0.06)">
+          <textarea id="doubt-question" placeholder="Write your question here" required style="padding:10px;border-radius:8px;border:1px solid rgba(15,23,42,0.06);min-height:90px"></textarea>
+          <input id="doubt-video" type="url" placeholder="Optional: link to a video or image (paste URL)" style="padding:10px;border-radius:8px;border:1px solid rgba(15,23,42,0.06)">
+          <div style="display:flex;gap:8px">
+            <button id="doubt-submit" class="btn" type="submit" style="flex:1;background:var(--accent);color:white">Submit Doubt</button>
+            <button id="doubt-clear" type="button" class="btn btn-ghost" style="flex:1">Clear</button>
+          </div>
+        </form>
+
+        <div style="margin-top:12px;display:flex;gap:8px;align-items:center">
+          <input id="doubt-search" type="search" placeholder="Search doubts by topic or name" style="flex:1;padding:8px;border-radius:8px;border:1px solid rgba(15,23,42,0.06)">
+          <div class="muted">Showing recent and answered doubts below</div>
+        </div>
+
+        <div id="doubt-list" style="margin-top:12px;display:grid;gap:10px;max-height:360px;overflow:auto;padding-right:6px"></div>
+      </div>
+    </section>
+
+    <footer>
+      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px">
+        <div>© EduSite • Built with ❤️ for students</div>
+        <div class="muted">Privacy • Terms • Help</div>
+      </div>
+    </footer>
+  </div>
+
+  <script>
+    // Ensure page opens at the top and remove any hash anchors that cause auto-scrolling
+    document.addEventListener('DOMContentLoaded', function(){
+      try{
+        if(location.hash){
+          // remove the fragment without reloading
+          history.replaceState(null, '', location.href.split('#')[0]);
+        }
+      }catch(e){}
+      // force scroll to top
+      try{ window.scrollTo({top:0,left:0,behavior:'auto'}); }catch(e){ window.scrollTo(0,0); }
+    });
+
+    // Auth guard and nav adjustments
+    (function(){
+      const loginLink = document.getElementById('login-link');
+      const signupLink = document.getElementById('signup-link');
+      const profileLink = document.getElementById('profile-link');
+      const logoutLink = document.getElementById('logout-link');
+      const logged = JSON.parse(localStorage.getItem('loggedInUser') || sessionStorage.getItem('loggedInUser') || 'null');
+      if(!logged){
+        // If not authenticated, require login before viewing main page
+        try{ if(window.location.pathname.endsWith('index.html')||window.location.pathname.endsWith('/')||window.location.pathname===''){
+          window.location.href = 'login.html';
+        }}catch(e){ window.location.href = 'login.html'; }
+      } else {
+        // show profile/logout links, hide login/signup
+        if(loginLink) loginLink.style.display = 'none';
+        if(signupLink) signupLink.style.display = 'none';
+        if(profileLink) profileLink.style.display = 'inline';
+        if(logoutLink) { logoutLink.style.display = 'inline'; logoutLink.addEventListener('click', (ev)=>{ ev.preventDefault(); localStorage.removeItem('loggedInUser'); window.location.href='login.html'; }); }
+      }
+    })();
+
+    // ===== Syllabus data and handlers =====
+    const syllabusData = {
+      3: { title: 'Class 3 — Overview', subjects: 'Maths • EVS • English', items: [
+        'Numbers, addition & subtraction', 'Basic shapes and measurement', 'Plants and animals (EVS)', 'Reading short stories and basic grammar'
+      ]},
+      4: { title: 'Class 4 — Overview', subjects: 'Maths • EVS • English', items: [
+        'Multiplication & division', 'Fractions & decimals', 'Local geography (EVS)', 'Comprehension and grammar'
+      ]},
+      5: { title: 'Class 5 — Overview', subjects: 'Maths • EVS • English', items: [
+        'Advanced fractions & decimals', 'Introduction to decimals & percentages', 'Plant physiology, environment (EVS)', 'Writing and vocabulary'
+      ]},
+      6: { title: 'Class 6 — Overview', subjects: 'Maths • Science • SST • English', items: [
+        'Integers, factors & multiples', 'Basic physics concepts', 'History: early civilizations', 'Grammar and composition'
+      ]},
+      7: { title: 'Class 7 — Overview', subjects: 'Maths • Science • SST • English', items: [
+        'Algebraic expressions', 'Cells and organisms', 'Medieval history & geography', 'Reading and paragraph writing'
+      ]},
+      8: { title: 'Class 8 — Overview', subjects: 'Maths • Science • SST • English', items: [
+        'Linear equations & geometry', 'Systems of the human body', 'Modern history basics', 'Essay writing and comprehension'
+      ]},
+      9: { title: 'Class 9 — Overview', subjects: 'Maths • Science • SST • English', items: [
+        'Polynomials & coordinate geometry', 'Chemical reactions & motion', 'Contemporary history & civics', 'Critical reading and grammar'
+      ]},
+      10: { title: 'Class 10 — Overview', subjects: 'Maths • Science • SST • English', items: [
+        'Quadratic equations & trigonometry', 'Physics fundamentals & basic chemistry', 'Civics, geography and modern history', 'Formal writing and literature overview'
+      ]}
+    };
+
+    function renderSyllabusForClass(cls){
+      cls = String(cls);
+      // store current class for start button
+      window.currentClass = cls;
+      const info = syllabusData[cls];
+      const titleEl = document.getElementById('detail-title');
+      const subEl = document.getElementById('detail-sub');
+      const listEl = document.getElementById('syllabus-list');
+      if(!info) return;
+      if(titleEl) titleEl.textContent = info.title || `Class ${cls} — Overview`;
+      if(subEl) subEl.textContent = `Subjects: ${info.subjects}`;
+      if(listEl){
+        listEl.innerHTML = '';
+        info.items.forEach(it=>{ const li = document.createElement('li'); li.textContent = it; listEl.appendChild(li); });
+      }
+      // do not auto-scroll on load; only update content (prevents jumping to Courses on page open)
+    }
+
+    // Syllabus modal (full view + download)
+    (function(){
+      const modal = document.createElement('div');
+      modal.id = 'syllabus-modal';
+      modal.style.display = 'none';
+      modal.style.position = 'fixed';
+      modal.style.inset = '0';
+      modal.style.background = 'rgba(0,0,0,0.6)';
+      modal.style.zIndex = '9999';
+      modal.style.alignItems = 'center';
+      modal.style.justifyContent = 'center';
+      modal.innerHTML = `
+        <div style="width:92%;max-width:760px;background:#fff;border-radius:10px;padding:18px;max-height:80vh;overflow:auto">
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <div>
+              <h3 id="modal-title" style="margin:0">Syllabus</h3>
+              <div id="modal-sub" class="muted"></div>
+            </div>
+            <div>
+              <button id="modal-download" style="margin-right:8px;padding:8px 10px;border-radius:8px;border:0;background:#0b6efd;color:#fff;cursor:pointer">Download</button>
+              <button id="modal-close" style="padding:8px 10px;border-radius:8px;border:1px solid #e6eefb;background:transparent;cursor:pointer">Close</button>
+            </div>
+          </div>
+          <hr style="margin:12px 0">
+          <div id="modal-list" style="padding-left:12px;color:#0f172a"></div>
+        </div>
+      `;
+      document.body.appendChild(modal);
+
+      const m = document.getElementById('syllabus-modal');
+      const title = m.querySelector('#modal-title');
+      const sub = m.querySelector('#modal-sub');
+      const list = m.querySelector('#modal-list');
+      const close = m.querySelector('#modal-close');
+      const download = m.querySelector('#modal-download');
+
+      function openModal(cls){
+        const info = syllabusData[String(cls)];
+        if(!info) return;
+        title.textContent = info.title || `Class ${cls} — Syllabus`;
+        sub.textContent = `Subjects: ${info.subjects}`;
+        list.innerHTML = '';
+        const ul = document.createElement('ul'); ul.style.paddingLeft='18px';
+        info.items.forEach(it=>{ const li = document.createElement('li'); li.textContent = it; ul.appendChild(li); });
+        list.appendChild(ul);
+        m.style.display = 'flex';
+        // prepare download
+        download.onclick = ()=>{
+          try{
+            // use jsPDF if available
+            if(window.jspdf && window.jspdf.jsPDF){
+              const { jsPDF } = window.jspdf;
+              const doc = new jsPDF();
+              doc.setFontSize(16);
+              doc.text(title.textContent || `Syllabus`, 14, 18);
+              doc.setFontSize(11);
+              doc.text(sub.textContent || '', 14, 28);
+              let y = 40;
+              const pageHeight = doc.internal.pageSize.getHeight();
+              info.items.forEach((it, idx)=>{
+                const lines = doc.splitTextToSize(`• ${it}`, 180);
+                doc.text(lines, 14, y);
+                y += (lines.length * 7);
+                if(y > pageHeight - 24){ doc.addPage(); y = 20; }
+              });
+              doc.save(`syllabus-class-${cls}.pdf`);
+              return;
+            }
+          }catch(e){
+            console.error('PDF generation failed, falling back to text:', e);
+          }
+          // fallback to text file if pdf generation isn't available
+          const blob = new Blob([`${title.textContent}\n${sub.textContent}\n\n${info.items.join('\n')}`], {type:'text/plain'});
+          const url = URL.createObjectURL(blob);
+          const a=document.createElement('a'); a.href=url; a.download=`syllabus-class-${cls}.txt`;
+          document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
+        };
+      }
+
+      function closeModal(){ m.style.display='none'; }
+      close.addEventListener('click', closeModal);
+      m.addEventListener('click', function(e){ if(e.target===m) closeModal(); });
+
+      // expose
+      window.openSyllabusModal = openModal;
+    })();
+
+    // Use delegated listeners for robustness
+    const tabsWrapper = document.getElementById('class-tabs');
+    if(tabsWrapper){
+      tabsWrapper.addEventListener('click', function(e){
+        const btn = e.target.closest('.tab-btn');
+        if(!btn) return;
+        const cls = btn.getAttribute('data-class');
+        renderSyllabusForClass(cls);
+        // user-initiated action: scroll the detail panel into view so users notice the update
+        try{ const detail = document.getElementById('class-detail'); if(detail) detail.scrollIntoView({behavior:'smooth', block:'start'}); }catch(e){}
+        // update tab visuals
+        document.querySelectorAll('.tab-btn').forEach(t=>t.style.background='transparent');
+        btn.style.background='linear-gradient(180deg,#fff,#fbfdff)';
+      });
+    }
+
+    const cardsWrapper = document.getElementById('class-cards');
+    if(cardsWrapper){
+      cardsWrapper.addEventListener('click', function(e){
+        const syllabusBtn = e.target.closest('.small-syllabus');
+        if(syllabusBtn){
+          e.stopPropagation();
+          const cls = syllabusBtn.getAttribute('data-class');
+          renderSyllabusForClass(cls);
+          // also open modal for full syllabus
+          window.openSyllabusModal(cls);
+            // scroll detail into view for user-triggered syllabus open
+            try{ const detail = document.getElementById('class-detail'); if(detail) detail.scrollIntoView({behavior:'smooth', block:'start'}); }catch(e){}
+          return;
+        }
+        const startBtn = e.target.closest('.small-start');
+        if(startBtn){
+          e.stopPropagation();
+          const cls = startBtn.getAttribute('data-class');
+          const logged = JSON.parse(localStorage.getItem('loggedInUser') || sessionStorage.getItem('loggedInUser') || 'null');
+          if(!logged){ window.location.href = 'login.html'; return; }
+          // go to course page
+          window.location.href = `course.html?class=${encodeURIComponent(cls)}`;
+          return;
+        }
+        const card = e.target.closest('.class-card');
+        if(card){
+            renderSyllabusForClass(card.getAttribute('data-class'));
+            try{ const detail = document.getElementById('class-detail'); if(detail) detail.scrollIntoView({behavior:'smooth', block:'start'}); }catch(e){}
+        }
+      });
+    }
+
+    // initial load: show class 3 syllabus
+    renderSyllabusForClass(3);
+
+    // wire RHS Start Learning and Enroll buttons to use currentClass
+    document.getElementById('start-btn').addEventListener('click', ()=>{
+      const cls = window.currentClass || '3';
+      const logged = JSON.parse(localStorage.getItem('loggedInUser') || sessionStorage.getItem('loggedInUser') || 'null');
+      if(!logged){ window.location.href = 'login.html'; return; }
+      window.location.href = `course.html?class=${encodeURIComponent(cls)}`;
+    });
+    document.getElementById('enroll-btn').addEventListener('click', ()=>{
+      alert('Enrollment recorded (demo). You are now enrolled for this class.');
+    });
+
+
+    // Simple FAQ accordion
+    document.querySelectorAll('.faq .q').forEach(q=>{
+      q.addEventListener('click',()=>{
+        const next = q.nextElementSibling;
+        const open = next.style.display === 'block';
+        document.querySelectorAll('.faq .a').forEach(x=>x.style.display='none');
+        if(!open) next.style.display='block';
+      })
+    })
+
+    // Basic responsive nav: show a simple mobile menu when the user taps logo
+    const nav = document.querySelector('nav');
+    const logoEl = document.querySelector('.logo');
+    // If a custom logo image was saved in localStorage, show it
+    (function(){
+      try{
+        const data = localStorage.getItem('customLogo');
+        if(data){
+          logoEl.innerHTML = '';
+          const img = document.createElement('img'); img.src = data; img.alt = 'Logo';
+          img.style.width = '100%'; img.style.height = '100%'; img.style.objectFit = 'cover'; img.style.borderRadius = '8px';
+          logoEl.appendChild(img);
+        }
+      }catch(e){}
+    })();
+
+    // file uploader to change logo (Alt+Click the logo to upload)
+    const logoInput = document.createElement('input'); logoInput.type='file'; logoInput.accept='image/*'; logoInput.style.display='none'; document.body.appendChild(logoInput);
+    logoInput.addEventListener('change', (ev)=>{
+      const f = ev.target.files && ev.target.files[0]; if(!f) return;
+      const r = new FileReader(); r.onload = ()=>{ try{ localStorage.setItem('customLogo', r.result); logoEl.innerHTML=''; const img=document.createElement('img'); img.src=r.result; img.alt='Logo'; img.style.width='100%'; img.style.height='100%'; img.style.objectFit='cover'; img.style.borderRadius='8px'; logoEl.appendChild(img); alert('Logo updated and saved in this browser.'); }catch(e){alert('Could not save logo: '+e);} };
+      r.readAsDataURL(f);
+    });
+
+    logoEl.addEventListener('click',(ev)=>{
+      // Alt+Click to change logo image (saved in browser localStorage)
+      if(ev.altKey){ if(confirm('Upload a new logo image file and save it locally in this browser?')) logoInput.click(); return; }
+      if(window.innerWidth <= 640){ nav.style.display = nav.style.display === 'flex' ? 'none' : 'flex'; }
+    });
+
+    // Improve keyboard accessibility for FAQ
+    document.querySelectorAll('.faq .q').forEach((el)=>{el.setAttribute('tabindex',0);el.addEventListener('keypress', (e)=>{if(e.key==='Enter') el.click();})})
+
+    // ========== Doubt board logic ==========
+    const doubtForm = document.getElementById('doubt-form');
+    const doubtList = document.getElementById('doubt-list');
+    const doubtSearch = document.getElementById('doubt-search');
+
+    // Load saved doubts from localStorage
+    const loadDoubts = ()=> JSON.parse(localStorage.getItem('doubts')||'[]');
+    const saveDoubts = (arr)=> localStorage.setItem('doubts', JSON.stringify(arr));
+
+    const renderDoubts = (filter='')=>{
+      const arr = loadDoubts();
+      doubtList.innerHTML = '';
+      const filtered = arr.filter(d=>{
+        if(!filter) return true;
+        const f = filter.toLowerCase();
+        return d.name.toLowerCase().includes(f) || d.topic.toLowerCase().includes(f) || d.subject.toLowerCase().includes(f) || d.question.toLowerCase().includes(f);
+      }).reverse(); // show recent first
+
+      if(filtered.length===0){
+        doubtList.innerHTML = '<div class="muted">No doubts yet — be the first to ask!</div>';
+        return;
+      }
+
+      filtered.forEach(d=>{
+        const card = document.createElement('div');
+        card.className = 'card';
+        card.style.padding = '12px';
+        card.innerHTML = `
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px">
+            <div>
+              <div style="font-weight:800">${escapeHtml(d.topic)} <span style=\"font-weight:600;color:var(--muted);font-size:13px\">• Class ${escapeHtml(d.class)} • ${escapeHtml(d.subject)}</span></div>
+              <div class="muted" style="margin-top:4px">Asked by ${escapeHtml(d.name)}</div>
+            </div>
+            <div style="text-align:right">
+              <div style="font-size:12px;color:var(--muted)">${new Date(d.time).toLocaleString()}</div>
+              <div style="margin-top:6px">
+                <button class="btn btn-ghost small-answer" data-id="${d.id}" style="padding:6px 8px;border-radius:8px">Add solution</button>
+                <button class="btn btn-ghost small-mark" data-id="${d.id}" style="padding:6px 8px;border-radius:8px">Mark solved</button>
+              </div>
+            </div>
+          </div>
+          <div style="margin-top:10px">${escapeHtml(d.question)}</div>
+          ${d.video?`<div style=\"margin-top:8px\">Reference: <a href=\"${escapeAttr(d.video)}\" target=\"_blank\">${escapeAttr(d.video)}</a></div>`:''}
+          ${d.answer?`<div style=\"margin-top:12px;padding:10px;border-radius:8px;background:rgba(11,110,253,0.04)\"><strong>Solution:</strong> ${escapeHtml(d.answer)}${d.answerVideo?`<div style=\\"margin-top:8px\\">Video: <a href=\\"${escapeAttr(d.answerVideo)}\\" target=\\"_blank\\">${escapeAttr(d.answerVideo)}</a></div>`:''}</div>`:''}
+        `;
+
+        doubtList.appendChild(card);
+      });
+
+      // attach handlers
+      document.querySelectorAll('.small-answer').forEach(b=>b.addEventListener('click',()=>{
+        const id = b.getAttribute('data-id');
+        const ans = prompt('Enter a short solution/explanation:');
+        if(!ans) return;
+        const vid = prompt('Optional: paste a video URL to attach to this solution (or leave blank):');
+        const arr = loadDoubts();
+        const idx = arr.findIndex(x=>x.id===id);
+        if(idx>=0){arr[idx].answer = ans; if(vid) arr[idx].answerVideo = vid; saveDoubts(arr); renderDoubts(doubtSearch.value);}
+      }));
+
+      document.querySelectorAll('.small-mark').forEach(b=>b.addEventListener('click',()=>{
+        const id = b.getAttribute('data-id');
+        const arr = loadDoubts();
+        const idx = arr.findIndex(x=>x.id===id);
+        if(idx>=0){arr[idx].solved = true; saveDoubts(arr); renderDoubts(doubtSearch.value);}        
+      }));
+    };
+
+    // helpers to avoid XSS when inserting strings
+    function escapeHtml(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#039;');}
+    function escapeAttr(s){return String(s).replace(/"/g,'&quot;').replace(/'/g,'&#039;');}
+
+    // submit handler
+    doubtForm.addEventListener('submit',()=>{
+      const name = document.getElementById('doubt-name').value.trim();
+      const cls = document.getElementById('doubt-class').value;
+      const subject = document.getElementById('doubt-subject').value;
+      const topic = document.getElementById('doubt-topic').value.trim();
+      const question = document.getElementById('doubt-question').value.trim();
+      const video = document.getElementById('doubt-video').value.trim();
+      if(!name||!topic||!question) return alert('Please fill name, topic and question.');
+      const arr = loadDoubts();
+      arr.push({id: 'd'+Date.now(), name, class:cls, subject, topic, question, video:video||'', time: Date.now(), solved:false});
+      saveDoubts(arr);
+      doubtForm.reset();
+      renderDoubts(doubtSearch.value);
+      alert('Doubt submitted — tutors will review and add a solution (you can also add solutions from this page).');
+    });
+
+    document.getElementById('doubt-clear').addEventListener('click',()=>doubtForm.reset());
+    doubtSearch.addEventListener('input',(e)=>renderDoubts(e.target.value));
+
+    // initial render
+    renderDoubts();
+
+    document.getElementById('menu-btn').addEventListener('click',()=>{
+      const panel = document.getElementById('menu-panel');
+      panel.style.display = panel.style.display==='block'?'none':'block';
+    });
+
+    // ===== Plans / Enrollment =====
+    function loadEnrollments(){ return JSON.parse(localStorage.getItem('enrollments')||'[]'); }
+    function saveEnrollments(arr){ localStorage.setItem('enrollments', JSON.stringify(arr)); }
+
+    // create enroll modal
+    (function(){
+      const modal = document.createElement('div');
+      modal.id = 'enroll-modal'; modal.style.display='none'; modal.style.position='fixed'; modal.style.inset='0'; modal.style.background='rgba(0,0,0,0.6)'; modal.style.zIndex='9999'; modal.style.alignItems='center'; modal.style.justifyContent='center';
+      modal.innerHTML = `
+        <div style="width:92%;max-width:520px;background:#fff;border-radius:10px;padding:16px;">
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <div>
+              <h3 id="enroll-title" style="margin:0">Enroll</h3>
+              <div id="enroll-sub" class="muted"></div>
+            </div>
+            <div><button id="enroll-close" style="padding:8px 10px;border-radius:8px;border:1px solid #e6eefb;background:transparent;cursor:pointer">Close</button></div>
+          </div>
+          <hr style="margin:10px 0">
+          <div id="enroll-body" style="margin-bottom:12px"></div>
+          <div style="display:flex;gap:8px;justify-content:flex-end">
+            <button id="enroll-confirm" style="background:#0b6efd;color:#fff;padding:8px 12px;border-radius:8px;border:0;cursor:pointer">Confirm & Enroll</button>
+          </div>
+        </div>
+      `;
+      document.body.appendChild(modal);
+      const m = document.getElementById('enroll-modal');
+      const close = document.getElementById('enroll-close');
+      const confirm = document.getElementById('enroll-confirm');
+      let currentPlan = null;
+
+      function openEnroll(planKey){
+        const planCards = {
+          'one-day': {title:'One-day Plan', price:'₹49'},
+          'weekly': {title:'Weekly Plan', price:'₹199'},
+          'monthly': {title:'Monthly Plan', price:'₹599'},
+          'yearly': {title:'Yearly Plan', price:'₹1999'}
+        };
+        const info = planCards[planKey] || {title:planKey, price:''};
+        currentPlan = planKey;
+        document.getElementById('enroll-title').textContent = info.title+' — Enrollment';
+        document.getElementById('enroll-sub').textContent = info.price;
+        document.getElementById('enroll-body').innerHTML = `<div class="muted">You are about to enroll in the ${info.title}. Proceed to confirm enrollment. (Demo — no payment gateway integrated.)</div>`;
+        m.style.display='flex';
+      }
+
+      function closeEnroll(){ m.style.display='none'; }
+      close.addEventListener('click', closeEnroll);
+      m.addEventListener('click', e=>{ if(e.target===m) closeEnroll(); });
+
+      confirm.addEventListener('click', ()=>{
+        const logged = JSON.parse(localStorage.getItem('loggedInUser') || sessionStorage.getItem('loggedInUser') || 'null');
+        if(!logged){ closeEnroll(); window.location.href='login.html'; return; }
+
+        // Payment integration: if the page defines window.RAZORPAY_KEY_ID, attempt Razorpay checkout
+        // Plan amounts (INR paise)
+        const planAmounts = { 'one-day': 4900, 'weekly':19900, 'monthly':59900, 'yearly':199900 };
+        const amount = planAmounts[currentPlan] || 0;
+
+        function finalizeEnrollment(){
+          const now = Date.now();
+          let arr = loadEnrollments();
+          arr = arr.filter(e=> e.user !== logged.email);
+          arr.push({id:'e'+now, plan:currentPlan, user:logged.email, time: now});
+          saveEnrollments(arr);
+          closeEnroll();
+          try{ if(typeof updatePlansUI === 'function') updatePlansUI(); }catch(e){console.error('Could not refresh plans UI', e);}        
+          alert('Enrollment successful — you are enrolled in the '+currentPlan+' plan.');
+        }
+
+        // If Razorpay key id is provided, open Razorpay checkout; otherwise fall back to finalizing enrollment without payment (demo mode)
+        if(window.RAZORPAY_KEY_ID && typeof Razorpay !== 'undefined' && amount>0){
+          const options = {
+            key: window.RAZORPAY_KEY_ID, // set this in the page or console to use real checkout
+            amount: amount, // amount in paise (INR)
+            currency: 'INR',
+            name: 'EduSite',
+            description: 'Purchase plan: '+currentPlan,
+            handler: function (response){
+              // response.razorpay_payment_id contains the payment id — accept it and finalize user enrollment
+              try{ finalizeEnrollment(); }catch(e){ console.error(e); finalizeEnrollment(); }
+            },
+            modal: {ondismiss: function(){ /* user closed modal */ } }
+          };
+          const rzp = new Razorpay(options);
+          rzp.open();
+        } else {
+          // no payment gateway configured — fallback to demo enrollment (no payment)
+          finalizeEnrollment();
+        }
+      });
+
+      // expose
+      window.openEnrollModal = openEnroll;
+    })();
+
+    // attach enroll button handlers
+    document.querySelectorAll('.enroll-btn').forEach(b=>{
+      b.addEventListener('click', (e)=>{
+        const plan = b.getAttribute('data-plan');
+        const logged = JSON.parse(localStorage.getItem('loggedInUser') || sessionStorage.getItem('loggedInUser') || 'null');
+        if(!logged){ window.location.href='login.html'; return; }
+        window.openEnrollModal(plan);
+      });
+    });
+
+    // Helper: get currently logged user's email
+    function getLoggedEmail(){
+      const logged = JSON.parse(localStorage.getItem('loggedInUser') || sessionStorage.getItem('loggedInUser') || 'null');
+      return logged && logged.email ? logged.email : null;
+    }
+
+    // Return the enrollment record for the current user (if any)
+    function userEnrollment(){
+      const email = getLoggedEmail(); if(!email) return null;
+      const arr = loadEnrollments();
+      return arr.find(e=>e.user === email) || null;
+    }
+
+    // Utility to humanize plan keys
+    function humanPlan(key){ if(!key) return ''; return key.replace(/-/g,' ').replace(/\b\w/g, ch=>ch.toUpperCase()); }
+
+    // Show upgrade options (all plans) so the user can choose any plan to upgrade to
+    function showUpgradeOptions(currentPlan){
+      const plansSection = document.getElementById('plans'); if(!plansSection) return;
+      const planCards = {
+        'one-day': {title:'One-day Plan', price:'₹49', bullets:['Access to 1 full day of lessons','1 live doubt session','Downloadable notes (selected)']},
+        'weekly': {title:'Weekly Plan', price:'₹199', bullets:['Access to all lessons for 7 days','2 live doubt sessions','Weekly test & feedback']},
+        'monthly': {title:'Monthly Plan', price:'₹599', bullets:['Full course access for 30 days','Weekly live doubt sessions','Performance reports']},
+        'yearly': {title:'Yearly Plan', price:'₹1999', bullets:['All courses for one year','Priority doubt resolution','Monthly progress reviews']}
+      };
+
+      let html = `<h2 style="margin-bottom:8px">Upgrade your plan</h2><div style="display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:12px">`;
+      Object.keys(planCards).forEach(key=>{
+        const p = planCards[key];
+        const isCurrent = key === currentPlan;
+        html += `
+          <div class="card plan-card" data-plan="${key}" style="padding:16px;text-align:center;opacity:${isCurrent?0.7:1}">
+            <div style="font-weight:800">${p.title}</div>
+            <div class="muted" style="margin:6px 0">${p.title.split(' ')[0]}</div>
+            <div style="font-size:20px;font-weight:900;margin:8px">${p.price}</div>
+            <ul style="text-align:left;padding-left:18px;margin:8px 0;color:var(--muted)">${p.bullets.map(b=>`<li>${b}</li>`).join('')}</ul>
+            ${isCurrent?`<div style="margin-top:8px;font-weight:700;color:var(--muted)">Current plan</div>`:`<button type="button" class="btn upgrade-select" data-plan="${key}" style="margin-top:8px">Upgrade to ${p.price}</button>`}
+          </div>`;
+      });
+      html += `</div><div style="display:flex;gap:8px"><button id="upgrade-cancel" type="button" class="btn btn-ghost">Cancel</button><div class="muted" style="align-self:center">Select a plan to upgrade. (Demo — payment not integrated)</div></div>`;
+      plansSection.innerHTML = html;
+
+      // wire cancel
+      const cancel = document.getElementById('upgrade-cancel'); if(cancel) cancel.addEventListener('click', ()=>{ updatePlansUI(); });
+
+      // wire upgrade-select buttons to open the enroll modal
+      document.querySelectorAll('.upgrade-select').forEach(b=>{
+        b.addEventListener('click', ()=>{
+          const plan = b.getAttribute('data-plan');
+          const logged = JSON.parse(localStorage.getItem('loggedInUser') || sessionStorage.getItem('loggedInUser') || 'null');
+          if(!logged){ window.location.href='login.html'; return; }
+          window.openEnrollModal(plan);
+        });
+      });
+    }
+
+    // Update the Plans section for logged-in users who already purchased a plan
+    function updatePlansUI(){
+      const plansSection = document.getElementById('plans'); if(!plansSection) return;
+      const enrolled = userEnrollment();
+      if(enrolled){
+        // show a compact card with current plan and an upgrade action
+        plansSection.innerHTML = `
+          <h2 style="margin-bottom:8px">Your Plan</h2>
+          <div style="display:flex;gap:12px;align-items:flex-start;flex-wrap:wrap">
+            <div class="card" style="padding:16px;min-width:280px">
+              <div style="font-weight:800">${escapeHtml(humanPlan(enrolled.plan))}</div>
+              <div class="muted" style="margin:6px 0">Purchased on ${new Date(enrolled.time).toLocaleDateString()}</div>
+              <div style="margin-top:8px">You are currently enrolled in the ${escapeHtml(humanPlan(enrolled.plan))}.</div>
+              <div style="margin-top:12px"><button type="button" id="upgrade-btn" class="btn" style="background:#f59e0b;color:#fff;border:none;padding:8px 12px;border-radius:8px">Upgrade your plan</button></div>
+            </div>
+            <div class="muted" style="align-self:center">Want more features? Click Upgrade to choose a higher plan.</div>
+          </div>
+        `;
+
+        // wire upgrade button to open enrollment options (open enroll modal for a suggested plan)
+        const up = document.getElementById('upgrade-btn');
+        if(up){ up.addEventListener('click', ()=>{ showUpgradeOptions(enrolled.plan); }); }
+      } else {
+        // Not enrolled: ensure original enroll buttons are visible and functional.
+        // Re-attach handlers in case DOM changed earlier.
+        document.querySelectorAll('.enroll-btn').forEach(b=>{
+          b.style.display = '';
+          if(!b.dataset._hasHandler){
+            b.addEventListener('click', (e)=>{
+              const plan = b.getAttribute('data-plan');
+              const logged = JSON.parse(localStorage.getItem('loggedInUser') || sessionStorage.getItem('loggedInUser') || 'null');
+              if(!logged){ window.location.href='login.html'; return; }
+              window.openEnrollModal(plan);
+            });
+            b.dataset._hasHandler = '1';
+          }
+        });
+      }
+    }
+
+    // Call updatePlansUI once on load to adjust UI for logged-in users
+    try{ updatePlansUI(); }catch(e){console.error('updatePlansUI failed', e);}    
+
+    // Video preview modal: prefer local MP4 playback via HTML5 <video>, then iframe fallback, then open new tab
+    (function(){
+      const previewUrl = 'https://www.bing.com/videos/riverview/relatedvideo?&q=i+want+a+sample+course+preview+video+of+ncret&&mid=ABBEA55BB12203FEA326ABBEA55BB12203FEA326&&FORM=VRDGAR';
+      const localVideoPath = 'sample_preview.mp4'; // place your MP4 at project root or update this path
+
+      const modal = document.createElement('div');
+      modal.id = 'video-modal';
+      modal.style.display = 'none';
+      modal.style.position = 'fixed';
+      modal.style.inset = '0';
+      modal.style.background = 'rgba(0,0,0,0.6)';
+      modal.style.zIndex = '9999';
+      modal.style.alignItems = 'center';
+      modal.style.justifyContent = 'center';
+      modal.style.padding = '20px';
+
+      modal.innerHTML = `
+        <div style="width:100%;max-width:980px;background:transparent;">
+          <div style="position:relative;background:#000;border-radius:10px;overflow:hidden;padding-top:56.25%">
+            <video id="video-player" controls style="position:absolute;top:0;left:0;width:100%;height:100%;display:none;background:#000"></video>
+            <iframe id="video-iframe" src="" frameborder="0" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen style="position:absolute;top:0;left:0;width:100%;height:100%;display:none"></iframe>
+          </div>
+          <div style="text-align:right;margin-top:8px"><button id="video-close" style="padding:8px 12px;border-radius:8px;border:none;background:#fff;cursor:pointer">Close</button></div>
+          <div id="video-fallback-msg" style="color:#fff;text-align:center;margin-top:8px;display:none">If playback fails, you can <a id="video-open-link" href="${previewUrl}" target="_blank" rel="noopener" style="color:#aee">open the preview in a new tab</a>.</div>
+        </div>
+      `;
+      document.body.appendChild(modal);
+
+      const previewBox = document.getElementById('video-preview');
+      const openLink = document.getElementById('open-preview-link');
+      const videoEl = modal.querySelector('#video-player');
+      const iframeEl = modal.querySelector('#video-iframe');
+      const closeBtn = modal.querySelector('#video-close');
+      const fallbackMsg = modal.querySelector('#video-fallback-msg');
+      const openInTabLink = modal.querySelector('#video-open-link');
+
+      function showModal(){
+        // reset displays
+        videoEl.style.display = 'none';
+        iframeEl.style.display = 'none';
+        fallbackMsg.style.display = 'none';
+
+        // try HTML5 video first (requires you to place an MP4 at `localVideoPath`)
+        videoEl.src = localVideoPath;
+        videoEl.load();
+        modal.style.display = 'flex';
+
+        // try to play when metadata loaded; if error or play rejected, fallback
+        let played = false;
+        const playAttempt = () => {
+          const p = videoEl.play();
+          if(p && typeof p.then === 'function'){
+            p.then(()=>{ played = true; videoEl.style.display='block'; }).catch(()=>{ showIframeFallback(); });
+          } else {
+            // older browsers: show video element and hope for the best
+            videoEl.style.display='block';
+          }
+        };
+
+        const onError = () => { showIframeFallback(); };
+        const onCanPlay = () => { playAttempt(); };
+
+        const cleanup = () => {
+          videoEl.removeEventListener('error', onError);
+          videoEl.removeEventListener('canplay', onCanPlay);
+        };
+
+        function showIframeFallback(){
+          cleanup();
+          // try embedding the preview URL in an iframe; many hosts (including bing.com) block this
+          iframeEl.src = previewUrl;
+          iframeEl.style.display = 'block';
+          fallbackMsg.style.display = 'block';
+        }
+
+        videoEl.addEventListener('error', onError);
+        videoEl.addEventListener('canplay', onCanPlay);
+
+        // safety: if video hasn't started playing in 1.2s, try iframe
+        setTimeout(()=>{ if(videoEl.style.display !== 'block' && iframeEl.style.display !== 'block'){ showIframeFallback(); } }, 1200);
+      }
+
+      function hideModal(){
+        videoEl.pause();
+        videoEl.src = '';
+        iframeEl.src = '';
+        modal.style.display = 'none';
+      }
+
+      if(previewBox){ previewBox.addEventListener('click', showModal); }
+      if(openLink){ openLink.addEventListener('click', function(e){ /* link opens in new tab by default */ }); }
+      closeBtn.addEventListener('click', hideModal);
+      modal.addEventListener('click', function(e){ if(e.target===modal) hideModal(); });
+    })();
+</script>
+</body>
+</html>

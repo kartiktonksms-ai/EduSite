@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Generative AI for Education</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"/>
+    <style>
+        :root {
+            --primary-color: #4a90e2;
+            --secondary-color: #f5f5f5;
+            --text-color: #333;
+            --border-radius: 8px;
+            --box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            line-height: 1.6;
+            background-color: var(--secondary-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 800px;
+            width: 100%;
+            background: #fff;
+            padding: 30px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            position: relative;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 20px;
+        }
+
+        .back-button {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: none;
+            border: none;
+            font-size: 20px;
+            color: var(--primary-color);
+            cursor: pointer;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+        }
+        header h1 {
+            color: var(--primary-color);
+            margin: 0;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        input, select, textarea, button {
+            width: 100%;
+            padding: 12px;
+            border-radius: var(--border-radius);
+            border: 1px solid #ccc;
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+
+        textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        button {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #357abd;
+        }
+
+        #output {
+            margin-top: 30px;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: var(--border-radius);
+            background-color: #fafafa;
+            min-height: 150px;
+            white-space: pre-wrap;
+        }
+
+        #output h3 {
+            margin-top: 0;
+            color: var(--primary-color);
+        }
+
+        .loader {
+            display: none;
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        #questionList {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        #questionList li {
+            display: flex;
+            gap: 8px;
+            margin: 8px 0;
+            align-items: center;
+        }
+
+        #questionList input[type="text"] {
+            flex: 1;
+            padding: 8px;
+        }
+
+        .small-btn {
+            padding: 8px 12px;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+
+    <a href="#" class="back-button" onclick="history.back(); return false;">
+        <i class="fas fa-arrow-left"></i>&nbsp;Back
+    </a>
+
+    <div class="container">
+        <header>
+            <h1>EduAI</h1>
+            <p>Automatically generate lesson plans and quizzes on any topic.</p>
+        </header>
+
+        <main>
+            <div class="form-group">
+                <label for="topic">Topic</label>
+                <textarea id="topic" placeholder="e.g., The Water Cycle, Photosynthesis, World War II"></textarea>
+            </div>
+
+            <div class="form-group">
+                <h3>Recommended Questions:</h3>
+                <button type="button" class="small-btn" onclick="addQuestion()">Add Question</button>
+                <ul id="questionList"></ul>
+            </div>
+
+            <div class="form-group">
+                <label for="contentType">Content Type</label>
+                <select id="contentType">
+                    <option value="lessonPlan">Lesson Plan</option>
+                    <option value="quiz">Quiz</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="doubt">Doubt (Optional)</label>
+                <textarea id="doubt" placeholder="Ask a question or clarify a concept related to the topic..."></textarea>
+            </div>
+
+            <div class="form-group">
+                <button id="searchDoubtBtn" type="button" style="background-color: #6c757d;">Search Doubt</button>
+            </div>
+
+            <button id="generateBtn" type="button">Generate Content</button>
+
+            <div class="loader" id="loader">Generating...</div>
+
+            <div id="output">
+                Your generated content will appear here.
+            </div>
+            <div id="downloadPdfContainer" style="display: none; text-align: center; margin-top: 20px;">
+                <button id="downloadPdfBtn" style="background-color: #28a745; color: white; border: none; padding: 10px 20px; border-radius: var(--border-radius); cursor: pointer;">
+                    <i class="fas fa-file-pdf"></i> Download as PDF
+                </button>
+            </div>
+
+        </main>
+    </div>
+
+    <script>
+        // Add a simple question to the recommendation list (editable)
+        function addQuestion() {
+            const ul = document.getElementById('questionList');
+            const li = document.createElement('li');
+            const input = document.createElement('input');
+            input.type = 'text';
+            input.placeholder = 'Enter a recommended question...';
+            const removeBtn = document.createElement('button');
+            removeBtn.type = 'button';
+            removeBtn.className = 'small-btn';
+            removeBtn.textContent = 'Remove';
+            removeBtn.onclick = () => ul.removeChild(li);
+            li.appendChild(input);
+            li.appendChild(removeBtn);
+            ul.appendChild(li);
+            input.focus();
+        }
+
+        document.getElementById('generateBtn').addEventListener('click', () => {
+            const topic = document.getElementById('topic').value.trim();
+            const contentType = document.getElementById('contentType').value;
+            const outputDiv = document.getElementById('output');
+            const loader = document.getElementById('loader');
+            const doubtText = document.getElementById('doubt').value.trim();
+            const downloadPdfContainer = document.getElementById('downloadPdfContainer');
+            const downloadPdfBtn = document.getElementById('downloadPdfBtn');
+
+            if (!topic) {
+                alert('Please enter a topic.');
+                return;
+            }
+
+            outputDiv.innerHTML = '';
+            loader.style.display = 'block';
+            downloadPdfContainer.style.display = 'none'; // Hide PDF button initially
+
+            setTimeout(() => {
+                if (doubtText) {
+                    // If there's a doubt, prioritize answering it
+                    const answer = answerDoubt(topic, doubtText);
+                    outputDiv.innerHTML = `<h3>Doubt Clarification: ${escapeHtml(doubtText)}</h3><p>${escapeHtml(answer)}</p>`;
+                    downloadPdfBtn.onclick = () => downloadContentAsPdf(outputDiv.innerHTML, `Doubt - ${sanitizeFilename(topic)}.pdf`);
+                } else {
+                    let generatedContent = '';
+                    if (contentType === 'lessonPlan') {
+                        generatedContent = generateLessonPlan(topic);
+                        downloadPdfBtn.onclick = () => downloadContentAsPdf(generatedContent, `Lesson Plan - ${sanitizeFilename(topic)}.pdf`);
+                    } else if (contentType === 'quiz') {
+                        generatedContent = generateQuiz(topic);
+                        downloadPdfBtn.onclick = () => downloadContentAsPdf(generatedContent, `Quiz - ${sanitizeFilename(topic)}.pdf`);
+                    }
+                    outputDiv.innerHTML = generatedContent;
+                    // ensure PDF uses final content shown
+                    downloadPdfBtn.onclick = () => downloadContentAsPdf(outputDiv.innerHTML, `${contentType === 'lessonPlan' ? 'Lesson Plan' : 'Quiz'} - ${sanitizeFilename(topic)}.pdf`);
+                }
+
+                loader.style.display = 'none';
+                downloadPdfContainer.style.display = 'block';
+            }, 700);
+        });
+
+        document.getElementById('searchDoubtBtn').addEventListener('click', () => {
+            const topic = document.getElementById('topic').value.trim();
+            const doubtText = document.getElementById('doubt').value.trim();
+            const outputDiv = document.getElementById('output');
+            const loader = document.getElementById('loader');
+            const downloadPdfContainer = document.getElementById('downloadPdfContainer');
+            const downloadPdfBtn = document.getElementById('downloadPdfBtn');
+
+            if (!doubtText) {
+                alert('Please enter your doubt in the "Doubt (Optional)" field.');
+                return;
+            }
+
+            outputDiv.innerHTML = '';
+            loader.style.display = 'block';
+            downloadPdfContainer.style.display = 'none';
+
+            setTimeout(() => {
+                const answer = answerDoubt(topic, doubtText);
+                outputDiv.innerHTML = `<h3>Doubt Clarification: ${escapeHtml(doubtText)}</h3><p>${escapeHtml(answer)}</p>`;
+                loader.style.display = 'none';
+                downloadPdfContainer.style.display = 'block';
+                downloadPdfBtn.onclick = () => downloadContentAsPdf(outputDiv.innerHTML, `Doubt - ${sanitizeFilename(topic || 'general')}.pdf`);
+            }, 500);
+        });
+
+        function generateLessonPlan(topic) {
+            return `
+<h3>Lesson Plan: ${escapeHtml(topic)}</h3>
+<strong>Objective:</strong> Students will be able to understand and describe the key concepts of ${escapeHtml(topic)}.
+
+<strong>Materials:</strong>
+ - Whiteboard or projector
+ - Markers or pens
+ - Handout: Key Vocabulary for ${escapeHtml(topic)}
+ - Interactive simulation/video about ${escapeHtml(topic)}
+
+<strong>Activities:</strong>
+ 1. <strong>Introduction (10 mins):</strong> Begin with a question to gauge prior knowledge. (e.g., "What do we already know about ${escapeHtml(topic)}?")
+ 2. <strong>Direct Instruction (15 mins):</strong> Present the core concepts of ${escapeHtml(topic)} using the whiteboard and vocabulary handout.
+ 3. <strong>Guided Practice (15 mins):</strong> Show a video or interactive simulation. Pause to discuss and ask questions.
+ 4. <strong>Independent Practice (10 mins):</strong> Students write a short summary (3-5 sentences) explaining ${escapeHtml(topic)} in their own words.
+
+<strong>Assessment:</strong>
+ Review student summaries to check for understanding. An exit ticket quiz can be used to assess key concepts.
+            `;
+        }
+
+        function generateQuiz(topic) {
+            let quizQuestions = '';
+            let correctAnswers = {};
+
+            const t = topic.toLowerCase();
+
+            if (t.includes('water cycle')) {
+                quizQuestions = `
+                    <div class="form-group">
+                        <p><strong>1. What is the process by which water changes from a liquid to a gas?</strong></p>
+                        <label><input type="radio" name="q1" value="a" required> a) Condensation</label><br>
+                        <label><input type="radio" name="q1" value="b" required> b) Evaporation</label><br>
+                        <label><input type="radio" name="q1" value="c" required> c) Precipitation</label><br>
+                        <label><input type="radio" name="q1" value="d" required> d) Transpiration</label>
+                    </div>
+                    <div class="form-group">
+                        <p><strong>2. What forms when water vapor cools and turns back into liquid water droplets or ice crystals?</strong></p>
+                        <label><input type="radio" name="q2" value="a" required> a) Rain</label><br>
+                        <label><input type="radio" name="q2" value="b" required> b) Clouds</label><br>
+                        <label><input type="radio" name="q2" value="c" required> c) Snow</label><br>
+                        <label><input type="radio" name="q2" value="d" required> d) Rivers</label>
+                    </div>
+                    <div class="form-group">
+                        <p><strong>3. Where is the majority of Earth's water stored?</strong></p>
+                        <label><input type="radio" name="q3" value="a" required> a) Rivers and lakes</label><br>
+                        <label><input type="radio" name="q3" value="b" required> b) Oceans</label><br>
+                        <label><input type="radio" name="q3" value="c" required> c) Glaciers and ice caps</label><br>
+                        <label><input type="radio" name="q3" value="d" required> d) Groundwater</label>
+                    </div>
+                `;
+                quizQuestions += `
+                    <div class="form-group">
+                        <p><strong>4. What is the primary driving force behind the water cycle?</strong></p>
+                        <label><input type="radio" name="q4" value="a" required> a) Gravity</label><br>
+                        <label><input type="radio" name="q4" value="b" required> b) Wind</label><br>
+                        <label><input type="radio" name="q4" value="c" required> c) Solar energy</label><br>
+                        <label><input type="radio" name="q4" value="d" required> d) Earth's rotation</label>
+                    </div>
+                `;
+                correctAnswers = { q1: 'b', q2: 'b', q3: 'b', q4: 'c' };
+            } else if (t.includes('photosynthesis')) {
+                quizQuestions = `
+                    <div class="form-group">
+                        <p><strong>1. What gas do plants absorb from the atmosphere for photosynthesis?</strong></p>
+                        <label><input type="radio" name="q1" value="a" required> a) Oxygen</label><br>
+                        <label><input type="radio" name="q1" value="b" required> b) Nitrogen</label><br>
+                        <label><input type="radio" name="q1" value="c" required> c) Carbon Dioxide</label><br>
+                        <label><input type="radio" name="q1" value="d" required> d) Hydrogen</label>
+                    </div>
+                    <div class="form-group">
+                        <p><strong>2. What is the primary energy source for photosynthesis?</strong></p>
+                        <label><input type="radio" name="q2" value="a" required> a) Chemical energy</label><br>
+                        <label><input type="radio" name="q2" value="b" required> b) Heat energy</label><br>
+                        <label><input type="radio" name="q2" value="c" required> c) Light energy</label><br>
+                        <label><input type="radio" name="q2" value="d" required> d) Mechanical energy</label>
+                    </div>
+                `;
+                quizQuestions += `
+                    <div class="form-group">
+                        <p><strong>3. What are the main products of photosynthesis?</strong></p>
+                        <label><input type="radio" name="q3" value="a" required> a) Water and carbon dioxide</label><br>
+                        <label><input type="radio" name="q3" value="b" required> b) Glucose and oxygen</label><br>
+                        <label><input type="radio" name="q3" value="c" required> c) Starch and nitrogen</label><br>
+                        <label><input type="radio" name="q3" value="d" required> d) Proteins and fats</label>
+                    </div>
+                `;
+                correctAnswers = { q1: 'c', q2: 'c', q3: 'b' };
+            } else if (t.includes('world war ii') || t.includes('world war 2') || t.includes('ww2')) {
+                quizQuestions = `
+                    <div class="form-group">
+                        <p><strong>1. What year did World War II begin?</strong></p>
+                        <label><input type="radio" name="q1" value="a" required> a) 1914</label><br>
+                        <label><input type="radio" name="q1" value="b" required> b) 1939</label><br>
+                        <label><input type="radio" name="q1" value="c" required> c) 1941</label><br>
+                        <label><input type="radio" name="q1" value="d" required> d) 1945</label>
+                    </div>
+                `;
+                quizQuestions += `
+                    <div class="form-group">
+                        <p><strong>2. Which countries formed the Axis powers?</strong></p>
+                        <label><input type="radio" name="q2" value="a" required> a) USA, UK, France</label><br>
+                        <label><input type="radio" name="q2" value="b" required> b) Germany, Italy, Japan</label><br>
+                        <label><input type="radio" name="q2" value="c" required> c) Soviet Union, China, India</label><br>
+                        <label><input type="radio" name="q2" value="d" required> d) Canada, Australia, New Zealand</label>
+                    </div>
+                `;
+                correctAnswers = { q1: 'b', q2: 'b' };
+            } else {
+                quizQuestions = `
+                    <div class="form-group">
+                        <p><strong>1. What is a key concept related to ${escapeHtml(topic)}?</strong></p>
+                        <label><input type="radio" name="q1" value="a" required> a) Option A</label><br>
+                        <label><input type="radio" name="q1" value="b" required> b) Option B</label><br>
+                        <label><input type="radio" name="q1" value="c" required> c) Option C</label><br>
+                        <label><input type="radio" name="q1" value="d" required> d) Option D</label>
+                    </div>
+                `;
+                correctAnswers = { q1: 'a' };
+            }
+
+            // Save answers globally so submit handler can access
+            window.currentQuizAnswers = correctAnswers;
+
+            return `
+                <h3>Quiz: ${escapeHtml(topic)}</h3>
+                <form id="quizForm">
+                    ${quizQuestions}
+                    <button type="submit">Submit Quiz</button>
+                </form>
+                <div id="quizResults" style="margin-top: 20px; font-weight: bold;"></div>
+            `;
+        }
+
+        // Utility: sanitize a value for filenames
+        function sanitizeFilename(name) {
+            return name ? name.replace(/[\\/:*?"<>|]+/g, '').trim() : 'document';
+        }
+
+        // Escape HTML to avoid injection when showing plain text answers / user input
+        function escapeHtml(unsafe) {
+            if (typeof unsafe !== 'string') return '';
+            return unsafe
+                .replaceAll('&', '&amp;')
+                .replaceAll('<', '&lt;')
+                .replaceAll('>', '&gt;')
+                .replaceAll('"', '&quot;')
+                .replaceAll("'", '&#039;');
+        }
+
+        // Quiz submission and grading
+        document.addEventListener('submit', (event) => {
+            if (event.target && event.target.id === 'quizForm') {
+                event.preventDefault();
+                const answers = window.currentQuizAnswers || {};
+                let score = 0;
+                const form = event.target;
+                const quizResultsDiv = document.getElementById('quizResults');
+                quizResultsDiv.innerHTML = '';
+
+                for (const question in answers) {
+                    // form.elements[question] is a RadioNodeList
+                    const radios = form.elements[question];
+                    let selectedValue = null;
+
+                    if (!radios) continue;
+
+                    // radios could be RadioNodeList or HTMLCollection — handle both
+                    if (radios.length !== undefined) {
+                        for (let i = 0; i < radios.length; i++) {
+                            if (radios[i].checked) {
+                                selectedValue = radios[i].value;
+                            }
+                        }
+                    } else {
+                        // single input case
+                        if (radios.checked) selectedValue = radios.value;
+                    }
+
+                    // color labels for correct/incorrect
+                    if (radios.length !== undefined) {
+                        for (let i = 0; i < radios.length; i++) {
+                            const radio = radios[i];
+                            // parent node might be label, or label might wrap input and text
+                            const label = radio.parentNode.tagName.toLowerCase() === 'label' ? radio.parentNode : radio.closest('label');
+                            if (!label) continue;
+                            label.style.color = ''; // reset
+
+                            if (radio.value === answers[question]) {
+                                label.style.color = 'green';
+                            }
+                            if (radio.checked && radio.value !== answers[question]) {
+                                label.style.color = 'red';
+                            }
+                        }
+                    } else {
+                        // single radio input situation (rare)
+                        const single = radios;
+                        const label = single.parentNode.tagName.toLowerCase() === 'label' ? single.parentNode : single.closest('label');
+                        if (label) {
+                            label.style.color = single.value === answers[question] ? 'green' : (single.checked ? 'red' : '');
+                        }
+                    }
+
+                    if (selectedValue === answers[question]) {
+                        score++;
+                    }
+                }
+
+                quizResultsDiv.innerText = `You scored ${score} out of ${Object.keys(answers).length}!`;
+            }
+        });
+
+        function answerDoubt(topic, doubt) {
+            const lowerCaseTopic = (topic || '').toLowerCase();
+            const lowerCaseDoubt = (doubt || '').toLowerCase();
+
+            if (lowerCaseTopic.includes('water cycle')) {
+                if (lowerCaseDoubt.includes('evaporation')) {
+                    return "Evaporation is the process where water changes from a liquid to a gas or vapor. It's how water moves from oceans, lakes, and rivers into the atmosphere.";
+                } else if (lowerCaseDoubt.includes('condensation')) {
+                    return "Condensation is the process where water vapor in the air changes back into liquid water, forming clouds. This happens when the air cools.";
+                } else if (lowerCaseDoubt.includes('precipitation')) {
+                    return "Precipitation is any form of water that falls from the atmosphere to the Earth's surface, such as rain, snow, sleet, or hail.";
+                } else if (lowerCaseDoubt.includes('stages') || lowerCaseDoubt.includes('steps')) {
+                    return "The main stages of the water cycle are evaporation, condensation, precipitation, and collection (or runoff).";
+                } else if (lowerCaseDoubt.includes('define water cycle') || lowerCaseDoubt.includes('what is water cycle')) {
+                    return "The water cycle, also known as the hydrological cycle, is the continuous movement of water on, above, and below the surface of the Earth.";
+                }
+            } else if (lowerCaseTopic.includes('photosynthesis')) {
+                if (lowerCaseDoubt.includes('chlorophyll')) {
+                    return "Chlorophyll is the green pigment found in plant cells, primarily in chloroplasts. It's essential for photosynthesis because it absorbs sunlight energy.";
+                } else if (lowerCaseDoubt.includes('reactants')) {
+                    return "The main reactants for photosynthesis are carbon dioxide (CO2) from the air and water (H2O) from the soil, along with sunlight energy.";
+                } else if (lowerCaseDoubt.includes('products')) {
+                    return "The main products of photosynthesis are glucose (a sugar, which is food for the plant) and oxygen (O2), which is released into the atmosphere.";
+                } else if (lowerCaseDoubt.includes('where does it happen')) {
+                    return "Photosynthesis primarily occurs in the chloroplasts within the plant cells, especially in the leaves.";
+                } else if (lowerCaseDoubt.includes('define photosynthesis') || lowerCaseDoubt.includes('what is photosynthesis')) {
+                    return "Photosynthesis is the process by which green plants and some other organisms use sunlight to synthesize foods with the help of chlorophyll, primarily producing glucose and oxygen from carbon dioxide and water.";
+                }
+            } else if (lowerCaseTopic.includes('world war ii') || lowerCaseTopic.includes('world war 2') || lowerCaseTopic.includes('ww2')) {
+                if (lowerCaseDoubt.includes('start date') || lowerCaseDoubt.includes('when did') || lowerCaseDoubt.includes('when was')) {
+                    return "World War II officially began on September 1, 1939, when Germany invaded Poland.";
+                } else if (lowerCaseDoubt.includes('allies') || lowerCaseDoubt.includes('axis')) {
+                    return "The main Allied powers were Great Britain, the United States, the Soviet Union, and China. The main Axis powers were Germany, Italy, and Japan.";
+                } else if (lowerCaseDoubt.includes('when world war iii started')) {
+                    return "World War III has not occurred. As of now, there has only been World War I and World War II.";
+                }
+            }
+
+            return `I can't find a specific answer for "${doubt}" related to "${topic}" in my current knowledge base. Please try rephrasing or provide more context.`;
+        }
+
+        function downloadContentAsPdf(content, filename) {
+            // Ensure jspdf is loaded
+            if (typeof window.jspdf === 'undefined') {
+                console.error("jsPDF library not loaded.");
+                alert("Error: PDF generation library not loaded. Please try again.");
+                return;
+            }
+
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+
+            // Use html() to render content into the PDF (works with jsPDF's html plugin)
+            doc.html(content, {
+                callback: function (doc) {
+                    doc.save(filename); // Save the PDF with the specified filename
+                },
+                x: 10,
+                y: 10,
+                width: 180,
+                windowWidth: 650
+            });
+        }
+    </script>
+
+    <!-- jsPDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+</body>
+</html>

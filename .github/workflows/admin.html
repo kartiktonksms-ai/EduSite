@@ -1,0 +1,171 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Admin — Users</title>
+  <style>
+    body{font-family:Inter,system-ui,Arial;margin:0;background:#f5f7fb;color:#0f172a}
+    .container{max-width:900px;margin:36px auto;padding:20px;background:#fff;border-radius:12px;box-shadow:0 8px 24px rgba(2,6,23,0.06)}
+    h1{margin:0 0 8px;font-size:20px}
+    .muted{color:#6b7280;font-size:13px}
+    table{width:100%;border-collapse:collapse;margin-top:16px}
+    th,td{padding:10px 12px;border-bottom:1px solid #eef2f7;text-align:left}
+    th{background:#fbfdff}
+    button{padding:8px 10px;border-radius:8px;border:0;cursor:pointer}
+    .btn-danger{background:#ef4444;color:#fff}
+    .btn-ghost{background:transparent;border:1px solid #e6eefb;color:#0b6efd}
+    .controls{display:flex;gap:8px;justify-content:flex-end;margin-top:12px}
+    .empty{padding:18px;text-align:center;color:#6b7280}
+    a.back{display:inline-block;margin-top:12px;color:#0b6efd;text-decoration:none}
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Admin — Stored Users</h1>
+    <div class="muted">View users created via the signup form. You can remove individual users or clear all stored users.</div>
+
+    <div id="users-area">
+      <!-- table will be injected here -->
+    </div>
+
+    <h2 style="margin-top:18px">Enrollments</h2>
+    <div id="enrollments-area">
+      <!-- enrollments table will be injected here -->
+    </div>
+
+    <div style="display:flex;gap:8px;margin-top:8px;justify-content:flex-end">
+      <button id="export-enrollments" class="btn btn-ghost" style="margin-right:auto">Export Enrollments CSV</button>
+      <button id="clear-enrollments" class="btn-danger">Delete All Enrollments</button>
+    </div>
+
+    <div class="controls">
+      <button id="clear-all" class="btn-danger">Delete All Users</button>
+      <a class="back" href="index.html">Back to site</a>
+    </div>
+  </div>
+
+  <script>
+    // require logged-in access (simple guard)
+    (function(){
+      const logged = JSON.parse(localStorage.getItem('loggedInUser') || sessionStorage.getItem('loggedInUser') || 'null');
+      if(!logged){
+        // redirect to login if not logged in
+        window.location.href = 'login.html';
+      }
+    })();
+
+    function loadUsers(){
+      try{ return JSON.parse(localStorage.getItem('users') || '[]'); }catch(e){ return []; }
+    }
+    function saveUsers(list){ localStorage.setItem('users', JSON.stringify(list)); }
+
+    function renderUsers(){
+      const area = document.getElementById('users-area');
+      const users = loadUsers();
+      if(!users || users.length===0){
+        area.innerHTML = '<div class="empty">No users found in localStorage.</div>';
+        return;
+      }
+
+      let html = '<table><thead><tr><th>#</th><th>Name</th><th>Email</th><th>Actions</th></tr></thead><tbody>';
+      users.forEach((u, i)=>{
+        const id = u.id || ('u'+i);
+        html += `<tr data-id="${id}"><td>${i+1}</td><td>${escapeHtml(u.name||'')}</td><td>${escapeHtml(u.email||'')}</td><td><button class="btn-delete" data-id="${id}" style="background:#ef4444;color:#fff;padding:6px 8px;border-radius:8px;border:0">Delete</button></td></tr>`;
+      });
+      html += '</tbody></table>';
+      area.innerHTML = html;
+
+      // attach delete handlers
+      document.querySelectorAll('.btn-delete').forEach(btn=>{
+        btn.addEventListener('click', ()=>{
+          const id = btn.getAttribute('data-id');
+          if(!confirm('Delete this user?')) return;
+          const list = loadUsers();
+          // find the user's email before filtering so we can also remove enrollments
+          const target = list.find((x,i)=> (x.id||('u'+i)) === id);
+          const userEmail = target && target.email ? String(target.email).toLowerCase() : null;
+          const updated = list.filter((x,i)=> (x.id||('u'+i)) !== id );
+          saveUsers(updated);
+          // also remove enrollments for this user
+          try{
+            if(userEmail){
+              const enrollments = JSON.parse(localStorage.getItem('enrollments')||'[]');
+              const remaining = enrollments.filter(e => String(e.user || '').toLowerCase() !== userEmail);
+              localStorage.setItem('enrollments', JSON.stringify(remaining));
+            }
+          }catch(e){ /* ignore */ }
+          // if deleted user was currently loggedInUser, also clear session
+          const logged = JSON.parse(localStorage.getItem('loggedInUser') || sessionStorage.getItem('loggedInUser') || 'null');
+          if(logged && updated.findIndex(u=>u.email.toLowerCase()===logged.email.toLowerCase())===-1){
+            localStorage.removeItem('loggedInUser');
+            sessionStorage.removeItem('loggedInUser');
+          }
+          renderUsers();
+          renderEnrollments();
+        });
+      });
+    }
+
+    document.getElementById('clear-all').addEventListener('click', ()=>{
+      if(!confirm('Delete ALL users stored in localStorage? This cannot be undone.')) return;
+      localStorage.removeItem('users');
+      // also clear loggedInUser
+      localStorage.removeItem('loggedInUser');
+      sessionStorage.removeItem('loggedInUser');
+      renderUsers();
+    });
+
+    // Enrollments management
+    function loadEnrollments(){ try{ return JSON.parse(localStorage.getItem('enrollments')||'[]'); }catch(e){ return []; } }
+    function saveEnrollments(list){ localStorage.setItem('enrollments', JSON.stringify(list)); }
+
+    function renderEnrollments(){
+      const area = document.getElementById('enrollments-area');
+      const enrolls = loadEnrollments();
+      if(!enrolls || enrolls.length===0){ area.innerHTML = '<div class="empty">No enrollments found.</div>'; return; }
+      let html = '<table><thead><tr><th>#</th><th>User Email</th><th>Plan</th><th>Purchased On</th><th>Actions</th></tr></thead><tbody>';
+      enrolls.forEach((e,i)=>{
+        html += `<tr data-id="${escapeHtml(e.id||('e'+i))}"><td>${i+1}</td><td>${escapeHtml(e.user||'')}</td><td>${escapeHtml(e.plan||'')}</td><td>${new Date(e.time||0).toLocaleString()}</td><td><button class="btn-delete-enroll" data-id="${escapeHtml(e.id||('e'+i))}" style="background:#ef4444;color:#fff;padding:6px 8px;border-radius:8px;border:0">Delete</button></td></tr>`;
+      });
+      html += '</tbody></table>';
+      area.innerHTML = html;
+
+      // attach delete handlers
+      document.querySelectorAll('.btn-delete-enroll').forEach(btn=>{
+        btn.addEventListener('click', ()=>{
+          const id = btn.getAttribute('data-id');
+          if(!confirm('Delete this enrollment?')) return;
+          const arr = loadEnrollments();
+          const updated = arr.filter(x=> (x.id||('e'+arr.indexOf(x))) !== id );
+          saveEnrollments(updated);
+          renderEnrollments();
+        });
+      });
+    }
+
+    document.getElementById('clear-enrollments').addEventListener('click', ()=>{
+      if(!confirm('Delete ALL enrollments stored in localStorage? This cannot be undone.')) return;
+      localStorage.removeItem('enrollments');
+      renderEnrollments();
+    });
+
+    document.getElementById('export-enrollments').addEventListener('click', ()=>{
+      const arr = loadEnrollments();
+      if(!arr || arr.length===0){ alert('No enrollments to export.'); return; }
+      const rows = [['id','user','plan','time']];
+      arr.forEach(r=> rows.push([r.id||'', r.user||'', r.plan||'', r.time?new Date(r.time).toISOString():'']));
+      const csv = rows.map(r=> r.map(c=> '"'+String(c).replace(/"/g,'""')+'"').join(',')).join('\n');
+      const blob = new Blob([csv], {type:'text/csv'});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a'); a.href = url; a.download = 'enrollments.csv'; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
+    });
+
+    function escapeHtml(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#039;'); }
+
+    renderUsers();
+    // render enrollments panel on load
+    try{ renderEnrollments(); }catch(e){ /* ignore if not available yet */ }
+  </script>
+</body>
+</html>
